@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build & packaging outputs
+out/
+dist/
+release/
+.vite/
+*.tsbuildinfo
+
+# Test & coverage
+coverage/
+
+# Logs & OS files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
