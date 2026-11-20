@@ -1,5 +1,6 @@
 {
   "name": "novatext",
+  "desktopName": "novatext",
   "version": "0.1.0",
   "description": "NovaText — Lightweight, fast, cross-platform developer text editor",
   "author": "NovaText <dev@novatext.app>",
@@ -25,6 +26,38 @@
       "out/**/*",
       "package.json"
     ],
+    "fileAssociations": [
+      {
+        "ext": [
+          "txt",
+          "text",
+          "log",
+          "md",
+          "markdown",
+          "json",
+          "js",
+          "jsx",
+          "ts",
+          "tsx",
+          "c",
+          "cpp",
+          "h",
+          "hpp",
+          "py",
+          "sh",
+          "yaml",
+          "yml",
+          "xml",
+          "html",
+          "css",
+          "rs",
+          "go",
+          "java"
+        ],
+        "name": "Text Document",
+        "role": "Editor"
+      }
+    ],
     "linux": {
       "target": [
         "deb"
@@ -32,7 +65,19 @@
       "category": "Development;TextEditor;",
       "maintainer": "NovaText <dev@novatext.app>",
       "synopsis": "Lightweight cross-platform developer text editor",
-      "description": "NovaText is a lightweight, fast, customizable text editor for software and embedded developers."
+      "description": "NovaText is a lightweight, fast, customizable text editor for software and embedded developers.",
+      "syncDesktopName": true,
+      "mimeTypes": [
+        "text/plain",
+        "text/x-log",
+        "text/markdown",
+        "application/json",
+        "application/javascript",
+        "text/javascript",
+        "text/x-python",
+        "text/x-c",
+        "text/x-c++"
+      ]
     }
   },
   "dependencies": {

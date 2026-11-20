@@ -40,6 +40,19 @@ export function App() {
   useEffect(() => {
     let cleanupBeforeClose: (() => void) | undefined;
     let cleanupFileChanged: (() => void) | undefined;
+    let cleanupOpenFiles: (() => void) | undefined;
+
+    const handleOpenFileOrDirectory = async (filePath: string) => {
+      if (!hasNovaAPI()) return;
+      const api = getNovaAPI();
+      const isDir = await api.fs.isDirectory(filePath);
+      if (isDir) {
+        useBottomPanelStore.getState().setWorkspacePath(filePath);
+        useBottomPanelStore.getState().openFolderSearch();
+      } else {
+        await openFileFromPath(filePath);
+      }
+    };
 
     const init = async () => {
       if (!hasNovaAPI()) return;
@@ -54,6 +67,14 @@ export function App() {
           .getState()
           .setExternalChange(event.filePath, event.type === 'unlink' ? 'deleted' : 'modified');
         void useSidebarStore.getState().refreshPinnedExistence();
+      });
+
+      cleanupOpenFiles = api.app.onOpenFiles((filePaths) => {
+        void (async () => {
+          for (const filePath of filePaths) {
+            await handleOpenFileOrDirectory(filePath);
+          }
+        })();
       });
 
       const persisted = await api.store.loadState();
@@ -79,6 +100,13 @@ export function App() {
           }
         }
       }
+
+      const pendingFiles = await api.app.getPendingFiles();
+      if (pendingFiles.length > 0) {
+        for (const filePath of pendingFiles) {
+          await handleOpenFileOrDirectory(filePath);
+        }
+      }
     };
 
     void init();
@@ -86,6 +114,7 @@ export function App() {
     return () => {
       cleanupBeforeClose?.();
       cleanupFileChanged?.();
+      cleanupOpenFiles?.();
     };
   }, []);
 

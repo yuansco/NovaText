@@ -17,6 +17,7 @@ import {
 export function registerIpcHandlers(
   getMainWindow: () => BrowserWindow | null,
   onConfirmClose: () => void,
+  getPendingFiles: () => string[],
 ): void {
   ipcMain.handle('fs:readFile', async (_event, filePath: string) => {
     if (typeof filePath !== 'string' || !filePath.trim()) {
@@ -144,5 +145,9 @@ export function registerIpcHandlers(
 
   ipcMain.on('window:confirmClose', () => {
     onConfirmClose();
+  });
+
+  ipcMain.handle('app:getPendingFiles', () => {
+    return getPendingFiles();
   });
 }
