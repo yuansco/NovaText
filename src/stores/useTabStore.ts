@@ -18,6 +18,7 @@ interface TabState {
   setTabLanguage: (id: string, languageId: string) => void;
   setExternalChange: (filePath: string, change: 'modified' | 'deleted' | null) => void;
   reloadTabFromFileResult: (id: string, file: FileReadResult) => void;
+  reorderTabs: (fromIndex: number, toIndex: number) => void;
   getActiveTab: () => TabDocument | undefined;
 }
 
@@ -201,6 +202,23 @@ export const useTabStore = create<TabState>((set, get) => ({
           : tab,
       ),
     });
+  },
+
+  reorderTabs: (fromIndex, toIndex) => {
+    const { tabs } = get();
+    if (
+      fromIndex === toIndex ||
+      fromIndex < 0 ||
+      toIndex < 0 ||
+      fromIndex >= tabs.length ||
+      toIndex >= tabs.length
+    ) {
+      return;
+    }
+    const next = [...tabs];
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, moved);
+    set({ tabs: next });
   },
 
   getActiveTab: () => {

@@ -349,7 +349,7 @@ export function Sidebar() {
       {/* Resize Handle */}
       <div
         onMouseDown={() => setIsResizing(true)}
-        className="absolute top-0 right-0 h-full w-1 cursor-col-resize hover:bg-[var(--accent-color)]"
+        className="absolute top-0 right-0 h-full w-2 cursor-col-resize hover:bg-[var(--accent-color)]"
       />
 
       {/* Context Menu for Pinned Files */}

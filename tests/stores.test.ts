@@ -70,4 +70,28 @@ describe('useTabStore', () => {
     store.closeTabImmediate(id2);
     expect(useTabStore.getState().activeTabId).toBe(id1);
   });
+
+  it('reorders tabs correctly', () => {
+    const store = useTabStore.getState();
+    const id1 = store.createNewTab();
+    const id2 = store.createNewTab();
+    const id3 = store.createNewTab();
+
+    expect(useTabStore.getState().tabs.map((t) => t.id)).toEqual([id1, id2, id3]);
+
+    // Move first tab to last
+    store.reorderTabs(0, 2);
+    expect(useTabStore.getState().tabs.map((t) => t.id)).toEqual([id2, id3, id1]);
+
+    // Move last tab to middle
+    store.reorderTabs(2, 1);
+    expect(useTabStore.getState().tabs.map((t) => t.id)).toEqual([id2, id1, id3]);
+
+    // Out of bounds or no-op
+    store.reorderTabs(0, 0);
+    expect(useTabStore.getState().tabs.map((t) => t.id)).toEqual([id2, id1, id3]);
+
+    store.reorderTabs(-1, 2);
+    expect(useTabStore.getState().tabs.map((t) => t.id)).toEqual([id2, id1, id3]);
+  });
 });
