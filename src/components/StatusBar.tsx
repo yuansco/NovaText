@@ -16,7 +16,7 @@ export function StatusBar() {
 
   return (
     <footer
-      className="flex shrink-0 items-center justify-between border-t px-3 text-[11px] select-none"
+      className="flex shrink-0 items-center justify-between border-t px-3 text-[11px] font-medium select-none"
       style={{
         height: 'calc(24px * var(--ui-scale))',
         backgroundColor: 'var(--bg-secondary)',

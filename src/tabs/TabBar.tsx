@@ -41,12 +41,13 @@ export function TabBar() {
                 backgroundColor: isActive ? 'var(--bg-tab-active)' : 'var(--bg-tab-inactive)',
                 borderColor: 'var(--border-color)',
                 color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+                fontWeight: isActive ? 600 : 500,
                 borderTop: isActive
                   ? '2px solid var(--accent-color)'
                   : '2px solid transparent',
               }}
             >
-              <FileCode2 size={14} className="shrink-0 opacity-75" />
+              <FileCode2 size={14} className="shrink-0 opacity-85" />
               <span className="truncate flex-1">{tab.title}</span>
 
               {tab.filePath && (

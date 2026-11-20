@@ -132,7 +132,7 @@ export function Sidebar() {
             borderColor: 'var(--border-color)',
           }}
         >
-          <Search size={13} className="shrink-0 text-[var(--text-muted)]" />
+          <Search size={13} className="shrink-0 text-[var(--text-secondary)]" />
           <input
             type="text"
             value={filterQuery}
@@ -157,7 +157,7 @@ export function Sidebar() {
       <div className="flex-1 overflow-y-auto px-1.5 py-2 space-y-4">
         {/* Pinned Files */}
         <section>
-          <div className="mb-1 flex items-center justify-between px-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          <div className="mb-1 flex items-center justify-between px-2 text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
             <span className="flex items-center gap-1.5">
               <Pin size={11} />
               {t.pinned} ({filteredPinned.length})
@@ -265,7 +265,7 @@ export function Sidebar() {
 
         {/* Recent Files */}
         <section>
-          <div className="mb-1 flex items-center justify-between px-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          <div className="mb-1 flex items-center justify-between px-2 text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
             <span className="flex items-center gap-1.5">
               <Clock size={11} />
               {t.recent} ({visibleRecent.length})
@@ -302,7 +302,7 @@ export function Sidebar() {
                         : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
                     }`}
                   >
-                    <FileText size={14} className="shrink-0 opacity-65" />
+                    <FileText size={14} className="shrink-0 opacity-85" />
                     <div className="min-w-0 flex-1">
                       <div className="truncate">{item.fileName}</div>
                       <div className="truncate text-[10px] text-[var(--text-muted)]">

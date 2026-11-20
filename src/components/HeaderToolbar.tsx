@@ -94,7 +94,7 @@ export function HeaderToolbar({ onOpenSettings, onOpenCommandPalette }: HeaderTo
         </button>
       </div>
 
-      <div className="hidden md:block truncate max-w-md text-xs text-[var(--text-muted)]">
+      <div className="hidden md:block truncate max-w-md text-xs text-[var(--text-secondary)] font-medium">
         {activeTab ? activeTab.filePath ?? activeTab.title : t.noFileOpen}
       </div>
 
