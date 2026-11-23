@@ -143,6 +143,20 @@ const en = {
   shortcutConflict: 'Shortcut conflict detected:',
   pressKeys: 'Press keys...',
   unbound: 'Unbound',
+
+  // Settings About
+  tabAbout: 'About',
+  aboutSection: 'About NovaText',
+  appDescription: 'NovaText is a lightweight, fast, and modern cross-platform developer text and code editor.',
+  appVersion: 'Version',
+  githubRepo: 'GitHub Repository',
+  visitGithub: 'Open in Browser',
+  copyRepoUrl: 'Copy Link',
+  copied: 'Copied!',
+  viewDetails: 'View Details',
+  softwareIntro: 'Software Introduction',
+  license: 'License',
+  author: 'Author',
 } as const;
 
 export type TranslationKeys = keyof typeof en;
@@ -289,6 +303,20 @@ const zhTW: Record<TranslationKeys, string> = {
   shortcutConflict: '偵測到快捷鍵衝突：',
   pressKeys: '請按下按鍵組合...',
   unbound: '未綁定',
+
+  // Settings About
+  tabAbout: '關於',
+  aboutSection: '關於 NovaText',
+  appDescription: 'NovaText 是一款專為軟體與嵌入式開發者打造的輕量、極速、現代化跨平台純文字與程式碼編輯器。',
+  appVersion: '軟體版本',
+  githubRepo: 'GitHub 倉庫地址',
+  visitGithub: '在瀏覽器開啟',
+  copyRepoUrl: '複製連結',
+  copied: '已複製！',
+  viewDetails: '查看詳情',
+  softwareIntro: '軟體介紹',
+  license: '授權條款',
+  author: '開發作者',
 };
 
 const DICTIONARIES: Record<AppLocale, Record<TranslationKeys, string>> = {

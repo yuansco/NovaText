@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "NovaText — Lightweight, fast, cross-platform developer text editor",
   "author": "NovaText <dev@novatext.app>",
-  "homepage": "https://github.com/novatext/novatext",
+  "homepage": "https://github.com/yuansco/NovaText",
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",

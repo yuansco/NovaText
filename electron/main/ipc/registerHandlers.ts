@@ -156,4 +156,10 @@ export function registerIpcHandlers(
       shell.showItemInFolder(filePath);
     }
   });
+
+  ipcMain.handle('app:openExternal', async (_event, url: string) => {
+    if (typeof url === 'string' && (url.startsWith('https://') || url.startsWith('http://'))) {
+      await shell.openExternal(url);
+    }
+  });
 }

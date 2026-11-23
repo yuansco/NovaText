@@ -1,7 +1,19 @@
 import { useMemo, useRef, useState } from 'react';
-import { AlertTriangle, Download, RotateCcw, Upload, X } from 'lucide-react';
+import {
+  AlertTriangle,
+  Check,
+  Copy,
+  Download,
+  ExternalLink,
+  FileCode2,
+  Github,
+  RotateCcw,
+  Upload,
+  X,
+} from 'lucide-react';
 import type { AppLocale } from '@shared/types/settings';
 import type { EditorTheme, UITheme } from '@shared/types/theme';
+import packageJson from '../../package.json';
 import { useT } from '@/i18n/translations';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { EDITOR_THEMES, resolveEditorTheme, resolveUITheme, UI_THEMES } from '@/themes/presets';
@@ -16,7 +28,7 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
-type SettingsTab = 'general' | 'themes' | 'shortcuts';
+type SettingsTab = 'general' | 'themes' | 'shortcuts' | 'about';
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const {
@@ -37,6 +49,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [recordingCmd, setRecordingCmd] = useState<string | null>(null);
   const [themeImportError, setThemeImportError] = useState<string | null>(null);
+  const [copiedUrl, setCopiedUrl] = useState(false);
   const importInputRef = useRef<HTMLInputElement | null>(null);
 
   const conflicts = useMemo(
@@ -106,6 +119,20 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     }
   };
 
+  const handleOpenExternal = (url: string) => {
+    if (window.novaAPI?.app?.openExternal) {
+      void window.novaAPI.app.openExternal(url);
+    } else {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const handleCopyRepoUrl = async () => {
+    await navigator.clipboard.writeText('https://github.com/yuansco/NovaText');
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2000);
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
@@ -127,7 +154,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           <div className="flex items-center gap-4">
             <h2 className="text-sm font-semibold">{t.settingsTitle}</h2>
             <nav className="flex items-center gap-1 text-xs">
-              {(['general', 'themes', 'shortcuts'] as const).map((tab) => (
+              {(['general', 'themes', 'shortcuts', 'about'] as const).map((tab) => (
                 <button
                   key={tab}
                   type="button"
@@ -142,7 +169,9 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     ? t.tabGeneral
                     : tab === 'themes'
                       ? t.tabThemes
-                      : t.tabShortcuts}
+                      : tab === 'shortcuts'
+                        ? t.tabShortcuts
+                        : t.tabAbout}
                 </button>
               ))}
             </nav>
@@ -321,6 +350,52 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       onChange={(e) => updateUI({ tabHeight: Number(e.target.value) })}
                     />
                   </label>
+                </div>
+              </section>
+
+              <section className="space-y-3 pt-2 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  {t.aboutSection}
+                </h3>
+                <div
+                  className="flex items-center justify-between gap-4 rounded border p-3"
+                  style={{
+                    backgroundColor: 'var(--bg-primary)',
+                    borderColor: 'var(--border-color)',
+                  }}
+                >
+                  <div className="flex items-start gap-3 min-w-0">
+                    <FileCode2 size={24} className="shrink-0 text-[var(--accent-color)] mt-0.5" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-xs text-[var(--text-primary)]">NovaText</span>
+                        <span className="rounded bg-[var(--accent-color)]/15 px-1.5 py-0.5 text-[10px] font-mono text-[var(--accent-color)]">
+                          v{packageJson.version}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                        {t.appDescription}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenExternal('https://github.com/yuansco/NovaText')}
+                        className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-[var(--accent-color)] hover:underline"
+                      >
+                        <Github size={12} />
+                        <span>https://github.com/yuansco/NovaText</span>
+                        <ExternalLink size={10} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('about')}
+                    className="shrink-0 rounded border px-2.5 py-1 text-[11px] font-medium transition-colors hover:bg-[var(--bg-hover)]"
+                    style={{ borderColor: 'var(--border-color)' }}
+                  >
+                    {t.viewDetails}
+                  </button>
                 </div>
               </section>
             </div>
@@ -536,6 +611,135 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'about' && (
+            <div className="space-y-5 py-1">
+              {/* App Banner Card */}
+              <div
+                className="flex flex-col items-center justify-center rounded-xl border p-6 text-center shadow-sm"
+                style={{
+                  backgroundColor: 'var(--bg-primary)',
+                  borderColor: 'var(--border-color)',
+                }}
+              >
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--accent-color)]/10 text-[var(--accent-color)] shadow-inner mb-3">
+                  <FileCode2 size={36} />
+                </div>
+                <h1 className="text-xl font-bold tracking-tight text-[var(--text-primary)]">NovaText</h1>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="rounded-full bg-[var(--accent-color)]/15 px-2.5 py-0.5 text-xs font-mono font-medium text-[var(--accent-color)]">
+                    v{packageJson.version}
+                  </span>
+                </div>
+                <p className="mt-3 max-w-md text-xs leading-relaxed text-[var(--text-secondary)]">
+                  {t.appDescription}
+                </p>
+              </div>
+
+              {/* GitHub Repository Card */}
+              <div className="space-y-2">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  {t.githubRepo}
+                </h3>
+                <div
+                  className="flex items-center justify-between gap-3 rounded-lg border p-3"
+                  style={{
+                    backgroundColor: 'var(--bg-primary)',
+                    borderColor: 'var(--border-color)',
+                  }}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Github size={18} className="shrink-0 text-[var(--text-primary)]" />
+                    <a
+                      href="https://github.com/yuansco/NovaText"
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleOpenExternal('https://github.com/yuansco/NovaText');
+                      }}
+                      className="truncate text-xs font-mono text-[var(--accent-color)] hover:underline"
+                    >
+                      https://github.com/yuansco/NovaText
+                    </a>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleCopyRepoUrl}
+                      className="inline-flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
+                      style={{ borderColor: 'var(--border-color)' }}
+                      title={t.copyRepoUrl}
+                    >
+                      {copiedUrl ? (
+                        <>
+                          <Check size={13} className="text-[var(--success-color)]" />
+                          <span className="text-[var(--success-color)]">{t.copied}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={13} />
+                          <span>{t.copyRepoUrl}</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleOpenExternal('https://github.com/yuansco/NovaText')}
+                      className="inline-flex items-center gap-1.5 rounded bg-[var(--accent-color)] px-3 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90"
+                    >
+                      <span>{t.visitGithub}</span>
+                      <ExternalLink size={12} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Software Details Grid */}
+              <div className="space-y-2">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  {t.softwareIntro}
+                </h3>
+                <div
+                  className="grid grid-cols-2 gap-3 rounded-lg border p-3.5 text-xs"
+                  style={{
+                    backgroundColor: 'var(--bg-primary)',
+                    borderColor: 'var(--border-color)',
+                  }}
+                >
+                  <div>
+                    <span className="text-[11px] text-[var(--text-muted)]">{t.appVersion}</span>
+                    <p className="mt-0.5 font-mono font-medium text-[var(--text-primary)]">
+                      {packageJson.version}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[11px] text-[var(--text-muted)]">{t.license}</span>
+                    <p className="mt-0.5 font-medium text-[var(--text-primary)]">
+                      MIT License
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[11px] text-[var(--text-muted)]">{t.author}</span>
+                    <p className="mt-0.5 font-medium text-[var(--text-primary)]">
+                      yuansco
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[11px] text-[var(--text-muted)]">Framework</span>
+                    <p className="mt-0.5 font-mono text-[var(--text-primary)]">
+                      Electron 33 • React 18
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           )}

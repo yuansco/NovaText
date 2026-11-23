@@ -84,6 +84,7 @@ const novaAPI: NovaAPI = {
         ipcRenderer.removeListener('app:openFiles', listener);
       };
     },
+    openExternal: (url: string) => ipcRenderer.invoke('app:openExternal', url),
   },
 };
 

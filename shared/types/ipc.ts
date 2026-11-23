@@ -91,5 +91,6 @@ export interface NovaAPI {
     getPendingFiles: () => Promise<string[]>;
     showItemInFolder: (filePath: string) => Promise<void>;
     onOpenFiles: (callback: (filePaths: string[]) => void) => () => void;
+    openExternal: (url: string) => Promise<void>;
   };
 }
