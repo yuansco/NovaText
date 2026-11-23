@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { BrowserWindow, dialog, ipcMain } from 'electron';
+import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import type { FileEncoding, LineEnding } from '@shared/types/file';
 import type { FolderSearchParams, UnsavedDialogChoice } from '@shared/types/ipc';
 import type { PersistedAppState } from '@shared/types/settings';
@@ -149,5 +149,11 @@ export function registerIpcHandlers(
 
   ipcMain.handle('app:getPendingFiles', () => {
     return getPendingFiles();
+  });
+
+  ipcMain.handle('app:showItemInFolder', (_event, filePath: string) => {
+    if (typeof filePath === 'string' && filePath.trim()) {
+      shell.showItemInFolder(filePath);
+    }
   });
 }

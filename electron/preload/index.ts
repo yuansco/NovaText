@@ -75,6 +75,7 @@ const novaAPI: NovaAPI = {
     getPlatform: () => process.platform,
     getPathForFile: (file: File) => webUtils.getPathForFile(file),
     getPendingFiles: () => ipcRenderer.invoke('app:getPendingFiles'),
+    showItemInFolder: (filePath: string) => ipcRenderer.invoke('app:showItemInFolder', filePath),
     onOpenFiles: (callback: (filePaths: string[]) => void) => {
       const listener = (_event: Electron.IpcRendererEvent, filePaths: string[]) =>
         callback(filePaths);

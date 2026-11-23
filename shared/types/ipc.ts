@@ -89,6 +89,7 @@ export interface NovaAPI {
     getPlatform: () => NodeJS.Platform;
     getPathForFile: (file: File) => string;
     getPendingFiles: () => Promise<string[]>;
+    showItemInFolder: (filePath: string) => Promise<void>;
     onOpenFiles: (callback: (filePaths: string[]) => void) => () => void;
   };
 }

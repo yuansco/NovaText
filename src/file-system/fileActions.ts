@@ -104,6 +104,52 @@ export async function closeTabWithConfirm(tabId: string): Promise<boolean> {
   return true;
 }
 
+export async function closeOtherTabs(targetTabId: string): Promise<void> {
+  const tabs = [...useTabStore.getState().tabs];
+  for (const tab of tabs) {
+    if (tab.id !== targetTabId) {
+      const closed = await closeTabWithConfirm(tab.id);
+      if (!closed) return;
+    }
+  }
+}
+
+export async function closeTabsToTheRight(targetTabId: string): Promise<void> {
+  const tabs = [...useTabStore.getState().tabs];
+  const idx = tabs.findIndex((t) => t.id === targetTabId);
+  if (idx === -1) return;
+  const tabsToClose = tabs.slice(idx + 1);
+  for (const tab of tabsToClose) {
+    const closed = await closeTabWithConfirm(tab.id);
+    if (!closed) return;
+  }
+}
+
+export async function closeSavedTabs(): Promise<void> {
+  const tabs = [...useTabStore.getState().tabs];
+  for (const tab of tabs) {
+    if (!tab.isDirty) {
+      await closeTabWithConfirm(tab.id);
+    }
+  }
+}
+
+export async function closeAllTabs(): Promise<void> {
+  const tabs = [...useTabStore.getState().tabs];
+  for (const tab of tabs) {
+    const closed = await closeTabWithConfirm(tab.id);
+    if (!closed) return;
+  }
+}
+
+export async function showItemInFolder(filePath: string): Promise<void> {
+  if (!hasNovaAPI()) return;
+  const api = getNovaAPI();
+  if (api.app.showItemInFolder) {
+    await api.app.showItemInFolder(filePath);
+  }
+}
+
 export async function handleWindowCloseRequest(): Promise<void> {
   if (!hasNovaAPI()) return;
   const tabsSnapshot = [...useTabStore.getState().tabs];

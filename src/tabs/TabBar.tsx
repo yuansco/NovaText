@@ -1,21 +1,116 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FileCode2, Pin, PinOff, Plus, X } from 'lucide-react';
-import { closeTabWithConfirm } from '@/file-system/fileActions';
+import {
+  closeOtherTabs,
+  closeTabsToTheRight,
+  closeTabWithConfirm,
+  reloadTabFromDisk,
+  saveTab,
+  saveTabAs,
+  showItemInFolder,
+} from '@/file-system/fileActions';
 import { useT } from '@/i18n/translations';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useTabStore } from '@/stores/useTabStore';
+
+interface TabContextMenuState {
+  tabId: string;
+  x: number;
+  y: number;
+}
 
 export function TabBar() {
   const { tabs, activeTabId, setActiveTab, createNewTab, reorderTabs } = useTabStore();
   const { pinnedFiles, pinFile, unpinFile } = useSidebarStore();
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [contextMenu, setContextMenu] = useState<TabContextMenuState | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const tabBarRef = useRef<HTMLDivElement | null>(null);
+  const tabListRef = useRef<HTMLDivElement | null>(null);
   const t = useT();
 
   const pinnedSet = new Set(pinnedFiles.map((p) => p.filePath));
 
+  // Dismiss context menu on click outside, escape key, or window resize
+  useEffect(() => {
+    if (!contextMenu) return;
+
+    const handleDismiss = () => setContextMenu(null);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setContextMenu(null);
+    };
+
+    window.addEventListener('click', handleDismiss);
+    window.addEventListener('contextmenu', handleDismiss);
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleDismiss);
+    return () => {
+      window.removeEventListener('click', handleDismiss);
+      window.removeEventListener('contextmenu', handleDismiss);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleDismiss);
+    };
+  }, [contextMenu]);
+
+  // Handle wheel scrolling over tab bar to scroll tabs horizontally
+  useEffect(() => {
+    const barEl = tabBarRef.current;
+    const listEl = tabListRef.current;
+    if (!barEl || !listEl) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) return;
+
+      const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      if (delta !== 0) {
+        e.preventDefault();
+        listEl.scrollLeft += delta;
+      }
+    };
+
+    barEl.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      barEl.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
+  // Ensure active tab is scrolled into view when switching tabs
+  useEffect(() => {
+    if (!activeTabId || !tabListRef.current) return;
+    const activeEl = tabListRef.current.querySelector<HTMLElement>(`[data-tab-id="${activeTabId}"]`);
+    if (activeEl) {
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
+  }, [activeTabId]);
+
+  // Handle double clicking on empty space in the tab bar to create a new file
+  const handleTabBarDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const isTab = (e.target as HTMLElement).closest('[data-tab-item]');
+    const isButton = (e.target as HTMLElement).closest('button');
+    if (!isTab && !isButton) {
+      createNewTab();
+    }
+  };
+
+  const targetTab = contextMenu ? tabs.find((t) => t.id === contextMenu.tabId) : null;
+  const targetTabIndex = contextMenu ? tabs.findIndex((t) => t.id === contextMenu.tabId) : -1;
+  const isTargetPinned = targetTab?.filePath ? pinnedSet.has(targetTab.filePath) : false;
+  const hasTabsToRight = targetTabIndex >= 0 && targetTabIndex < tabs.length - 1;
+  const hasOtherTabs = tabs.length > 1;
+
+  const menuPosition = contextMenu
+    ? {
+        x: Math.max(8, Math.min(contextMenu.x, window.innerWidth - 220)),
+        y: Math.max(8, Math.min(contextMenu.y, window.innerHeight - 380)),
+      }
+    : null;
+
   return (
     <div
+      ref={tabBarRef}
+      onDoubleClick={handleTabBarDoubleClick}
       className="flex items-center overflow-x-auto border-b select-none"
       style={{
         height: 'calc(var(--tab-height) * var(--ui-scale))',
@@ -24,6 +119,7 @@ export function TabBar() {
       }}
     >
       <div
+        ref={tabListRef}
         className="flex flex-1 items-center overflow-x-auto h-full"
         onDragOver={(e) => {
           if (draggedIndex !== null) {
@@ -50,6 +146,8 @@ export function TabBar() {
           return (
             <div
               key={tab.id}
+              data-tab-item="true"
+              data-tab-id={tab.id}
               draggable
               onDragStart={(e) => {
                 e.dataTransfer.setData('text/plain', tab.id);
@@ -88,6 +186,16 @@ export function TabBar() {
                 setDragOverIndex(null);
               }}
               onClick={() => setActiveTab(tab.id)}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setActiveTab(tab.id);
+                setContextMenu({
+                  tabId: tab.id,
+                  x: e.clientX,
+                  y: e.clientY,
+                });
+              }}
               onMouseDown={(e) => {
                 if (e.button === 1) {
                   e.preventDefault();
@@ -168,6 +276,160 @@ export function TabBar() {
       >
         <Plus size={14} />
       </button>
+
+      {/* Tab Context Menu */}
+      {contextMenu && targetTab && menuPosition && (
+        <div
+          ref={menuRef}
+          className="fixed z-50 min-w-[210px] rounded-md border py-1 text-xs shadow-2xl select-none"
+          style={{
+            left: menuPosition.x,
+            top: menuPosition.y,
+            backgroundColor: 'var(--bg-elevated)',
+            borderColor: 'var(--border-color)',
+            color: 'var(--text-primary)',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Close Tab */}
+          <button
+            type="button"
+            className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-[var(--bg-hover)] text-left"
+            onClick={() => {
+              setContextMenu(null);
+              void closeTabWithConfirm(targetTab.id);
+            }}
+          >
+            <span>{t.closeTab}</span>
+            <span className="text-[10px] text-[var(--text-muted)]">Ctrl+W</span>
+          </button>
+
+          {/* Close Others */}
+          <button
+            type="button"
+            disabled={!hasOtherTabs}
+            className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-[var(--bg-hover)] text-left disabled:opacity-40 disabled:hover:bg-transparent"
+            onClick={() => {
+              setContextMenu(null);
+              void closeOtherTabs(targetTab.id);
+            }}
+          >
+            <span>{t.closeOtherTabs}</span>
+          </button>
+
+          {/* Close Tabs to the Right */}
+          <button
+            type="button"
+            disabled={!hasTabsToRight}
+            className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-[var(--bg-hover)] text-left disabled:opacity-40 disabled:hover:bg-transparent"
+            onClick={() => {
+              setContextMenu(null);
+              void closeTabsToTheRight(targetTab.id);
+            }}
+          >
+            <span>{t.closeTabsToTheRight}</span>
+          </button>
+
+          <div className="my-1 border-t" style={{ borderColor: 'var(--border-color)' }} />
+
+          {/* Save */}
+          <button
+            type="button"
+            className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-[var(--bg-hover)] text-left"
+            onClick={() => {
+              setContextMenu(null);
+              void saveTab(targetTab.id);
+            }}
+          >
+            <span>{t.saveFile}</span>
+            <span className="text-[10px] text-[var(--text-muted)]">Ctrl+S</span>
+          </button>
+
+          {/* Save As */}
+          <button
+            type="button"
+            className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-[var(--bg-hover)] text-left"
+            onClick={() => {
+              setContextMenu(null);
+              void saveTabAs(targetTab.id);
+            }}
+          >
+            <span>{t.saveFileAs}</span>
+            <span className="text-[10px] text-[var(--text-muted)]">Ctrl+Shift+S</span>
+          </button>
+
+          {/* Reload from disk */}
+          {targetTab.filePath && (
+            <button
+              type="button"
+              className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-[var(--bg-hover)] text-left"
+              onClick={() => {
+                setContextMenu(null);
+                void reloadTabFromDisk(targetTab.id);
+              }}
+            >
+              <span>{t.reloadFromDisk}</span>
+            </button>
+          )}
+
+          <div className="my-1 border-t" style={{ borderColor: 'var(--border-color)' }} />
+
+          {/* Pin / Unpin */}
+          {targetTab.filePath && (
+            <button
+              type="button"
+              className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-[var(--bg-hover)] text-left"
+              onClick={() => {
+                setContextMenu(null);
+                if (isTargetPinned) unpinFile(targetTab.filePath!);
+                else pinFile(targetTab.filePath!);
+              }}
+            >
+              <span>{isTargetPinned ? t.unpinFile : t.pinFile}</span>
+            </button>
+          )}
+
+          {/* Copy Path */}
+          {targetTab.filePath && (
+            <button
+              type="button"
+              className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-[var(--bg-hover)] text-left"
+              onClick={() => {
+                setContextMenu(null);
+                void navigator.clipboard.writeText(targetTab.filePath!);
+              }}
+            >
+              <span>{t.copyPath}</span>
+            </button>
+          )}
+
+          {/* Copy Name */}
+          <button
+            type="button"
+            className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-[var(--bg-hover)] text-left"
+            onClick={() => {
+              setContextMenu(null);
+              void navigator.clipboard.writeText(targetTab.title);
+            }}
+          >
+            <span>{t.copyFileName}</span>
+          </button>
+
+          {/* Reveal in File Manager */}
+          {targetTab.filePath && (
+            <button
+              type="button"
+              className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-[var(--bg-hover)] text-left"
+              onClick={() => {
+                setContextMenu(null);
+                void showItemInFolder(targetTab.filePath!);
+              }}
+            >
+              <span>{t.revealInFileManager}</span>
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
