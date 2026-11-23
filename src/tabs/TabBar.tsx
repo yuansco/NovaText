@@ -111,7 +111,7 @@ export function TabBar() {
     <div
       ref={tabBarRef}
       onDoubleClick={handleTabBarDoubleClick}
-      className="flex items-center overflow-x-auto border-b select-none"
+      className="flex items-center overflow-hidden border-b select-none"
       style={{
         height: 'calc(var(--tab-height) * var(--ui-scale))',
         backgroundColor: 'var(--bg-secondary)',
@@ -120,7 +120,7 @@ export function TabBar() {
     >
       <div
         ref={tabListRef}
-        className="flex flex-1 items-center overflow-x-auto h-full"
+        className="tab-scrollbar flex flex-1 min-w-0 items-center overflow-x-auto h-full"
         onDragOver={(e) => {
           if (draggedIndex !== null) {
             e.preventDefault();
@@ -203,7 +203,7 @@ export function TabBar() {
                 }
               }}
               title={tab.filePath ?? tab.title}
-              className={`group relative flex h-full min-w-[130px] max-w-[240px] cursor-pointer items-center gap-2 border-r px-3 text-xs transition-colors ${
+              className={`group relative flex h-full shrink-0 min-w-[120px] max-w-[240px] cursor-pointer items-center gap-1.5 border-r px-2.5 text-xs transition-colors ${
                 isDragging ? 'opacity-40' : ''
               }`}
               style={{
@@ -232,11 +232,13 @@ export function TabBar() {
                     else pinFile(tab.filePath);
                   }}
                   title={isPinned ? t.unpinFile : t.pinFile}
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded transition-opacity hover:bg-[var(--bg-hover)] ${
-                    isPinned ? 'opacity-85 text-[var(--accent-color)]' : 'opacity-0 group-hover:opacity-80'
+                  className={`h-5 w-5 shrink-0 items-center justify-center rounded transition-opacity hover:bg-[var(--bg-hover)] ${
+                    isPinned
+                      ? 'flex opacity-85 text-[var(--accent-color)]'
+                      : 'hidden group-hover:flex opacity-70 hover:opacity-100'
                   }`}
                 >
-                  {isPinned ? <PinOff size={14} /> : <Pin size={14} />}
+                  {isPinned ? <PinOff size={13} /> : <Pin size={13} />}
                 </button>
               )}
 
@@ -249,7 +251,7 @@ export function TabBar() {
                   void closeTabWithConfirm(tab.id);
                 }}
                 title={t.closeTabTitle}
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded hover:bg-[var(--bg-hover)]"
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded hover:bg-[var(--bg-hover)]"
               >
                 {tab.isDirty ? (
                   <>
@@ -257,10 +259,10 @@ export function TabBar() {
                       className="h-2.5 w-2.5 rounded-full group-hover:hidden"
                       style={{ backgroundColor: 'var(--accent-color)' }}
                     />
-                    <X size={14} className="hidden group-hover:block" />
+                    <X size={13} className="hidden group-hover:block" />
                   </>
                 ) : (
-                  <X size={14} className="opacity-80 group-hover:opacity-100" />
+                  <X size={13} className="opacity-80 group-hover:opacity-100" />
                 )}
               </button>
             </div>
@@ -272,7 +274,7 @@ export function TabBar() {
         type="button"
         onClick={() => createNewTab()}
         title={t.newFileTitle}
-        className="flex h-full items-center justify-center px-2.5 text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+        className="flex h-full shrink-0 items-center justify-center px-2.5 text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
       >
         <Plus size={14} />
       </button>

@@ -59,6 +59,28 @@ body,
   background: var(--text-muted);
 }
 
+/* Custom subtle scrollbar for tab bar to avoid obscuring tab titles */
+.tab-scrollbar {
+  scrollbar-width: thin;
+}
+
+.tab-scrollbar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tab-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tab-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+.tab-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
 /* Ensure CodeMirror fills its container cleanly */
 .cm-editor {
   height: 100%;
