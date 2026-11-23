@@ -8,7 +8,7 @@ import {
   indentUnit,
 } from '@codemirror/language';
 import { highlightSelectionMatches, search, searchKeymap } from '@codemirror/search';
-import { Compartment, EditorState } from '@codemirror/state';
+import { Compartment, EditorState, StateEffect } from '@codemirror/state';
 import {
   drawSelection,
   EditorView,
@@ -30,6 +30,20 @@ interface CodeEditorProps {
   tab: TabDocument;
 }
 
+interface TabScrollState {
+  scrollTop: number;
+  scrollLeft: number;
+  snapshot?: StateEffect<unknown>;
+}
+
+const getScrollSnapshot = (view: EditorView): StateEffect<unknown> | undefined => {
+  try {
+    return view.scrollSnapshot();
+  } catch {
+    return undefined;
+  }
+};
+
 const LARGE_FILE_BYTE_THRESHOLD = 5 * 1024 * 1024; // 5 MB
 const VERY_LARGE_FILE_BYTE_THRESHOLD = 10 * 1024 * 1024; // 10 MB
 
@@ -37,6 +51,7 @@ export function CodeEditor({ tab }: CodeEditorProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const stateCacheRef = useRef<Map<string, EditorState>>(new Map());
+  const scrollCacheRef = useRef<Map<string, TabScrollState>>(new Map());
   const activeTabIdRef = useRef<string>(tab.id);
   const cursorDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -71,8 +86,32 @@ export function CodeEditor({ tab }: CodeEditorProps) {
     const isLargeFile = targetTab.byteSize > LARGE_FILE_BYTE_THRESHOLD;
     const isVeryLargeFile = targetTab.byteSize > VERY_LARGE_FILE_BYTE_THRESHOLD;
 
+    let initialSelection: { anchor: number } | undefined;
+    if (targetTab.cursor && targetTab.content) {
+      const content = targetTab.content;
+      const targetLine = Math.max(1, targetTab.cursor.line);
+      const targetCol = Math.max(1, targetTab.cursor.col);
+      let currentLine = 1;
+      let lineStart = 0;
+      let pos = 0;
+      while (currentLine < targetLine && pos < content.length) {
+        if (content.charCodeAt(pos) === 10) {
+          currentLine++;
+          lineStart = pos + 1;
+        }
+        pos++;
+      }
+      let lineEnd = content.indexOf('\n', lineStart);
+      if (lineEnd === -1) lineEnd = content.length;
+      const lineLen = lineEnd - lineStart;
+      const colOffset = Math.min(targetCol - 1, lineLen);
+      const initialPos = Math.min(lineStart + colOffset, content.length);
+      initialSelection = { anchor: initialPos };
+    }
+
     return EditorState.create({
       doc: targetTab.content,
+      selection: initialSelection,
       extensions: [
         lineNumbers(),
         highlightActiveLineGutter(),
@@ -172,7 +211,36 @@ export function CodeEditor({ tab }: CodeEditorProps) {
     setActiveEditorView(view);
     view.focus();
 
+    if (tab.scrollTop > 0 && view.scrollDOM) {
+      view.scrollDOM.scrollTop = tab.scrollTop;
+      scrollCacheRef.current.set(tab.id, {
+        scrollTop: tab.scrollTop,
+        scrollLeft: 0,
+        snapshot: getScrollSnapshot(view),
+      });
+      requestAnimationFrame(() => {
+        if (viewRef.current && activeTabIdRef.current === tab.id && viewRef.current.scrollDOM) {
+          viewRef.current.scrollDOM.scrollTop = tab.scrollTop;
+        }
+      });
+    }
+
+    const handleScroll = () => {
+      const currentTabId = activeTabIdRef.current;
+      const scroller = view.scrollDOM;
+      if (!scroller) return;
+      scrollCacheRef.current.set(currentTabId, {
+        scrollTop: scroller.scrollTop,
+        scrollLeft: scroller.scrollLeft,
+        snapshot: getScrollSnapshot(view),
+      });
+    };
+
+    const scroller = view.scrollDOM;
+    scroller?.addEventListener('scroll', handleScroll, { passive: true });
+
     return () => {
+      scroller?.removeEventListener('scroll', handleScroll);
       if (cursorDebounceRef.current) clearTimeout(cursorDebounceRef.current);
       setActiveEditorView(null);
       view.destroy();
@@ -188,16 +256,62 @@ export function CodeEditor({ tab }: CodeEditorProps) {
 
     const previousTabId = activeTabIdRef.current;
     if (previousTabId !== tab.id) {
+      // 1. Save previous tab state and scroll position
       stateCacheRef.current.set(previousTabId, view.state);
+      if (view.scrollDOM) {
+        const prevScroll: TabScrollState = {
+          scrollTop: view.scrollDOM.scrollTop,
+          scrollLeft: view.scrollDOM.scrollLeft,
+          snapshot: getScrollSnapshot(view),
+        };
+        scrollCacheRef.current.set(previousTabId, prevScroll);
+        useTabStore.getState().updateTabScroll(previousTabId, prevScroll.scrollTop);
+      }
+
+      if (cursorDebounceRef.current) {
+        clearTimeout(cursorDebounceRef.current);
+        cursorDebounceRef.current = null;
+        const head = view.state.selection.main.head;
+        const lineObj = view.state.doc.lineAt(head);
+        useTabStore
+          .getState()
+          .updateTabCursor(previousTabId, lineObj.number, head - lineObj.from + 1);
+      }
+
       activeTabIdRef.current = tab.id;
 
+      // 2. Retrieve or create nextState
       let nextState = stateCacheRef.current.get(tab.id);
       if (!nextState || nextState.doc.toString() !== tab.content) {
         nextState = createEditorStateForTab(tab);
         stateCacheRef.current.set(tab.id, nextState);
       }
+
+      // 3. Switch to next state
       view.setState(nextState);
-      view.dispatch({ effects: buildSettingsEffects() });
+
+      // 4. Restore settings and snapshot
+      const savedScroll = scrollCacheRef.current.get(tab.id);
+      const effects = buildSettingsEffects();
+      if (savedScroll?.snapshot) {
+        effects.push(savedScroll.snapshot);
+      }
+      view.dispatch({ effects });
+
+      // 5. Restore scrollDOM position synchronously and in next frame
+      const targetScrollTop = savedScroll ? savedScroll.scrollTop : (tab.scrollTop || 0);
+      const targetScrollLeft = savedScroll ? savedScroll.scrollLeft : 0;
+      if (view.scrollDOM) {
+        view.scrollDOM.scrollTop = targetScrollTop;
+        view.scrollDOM.scrollLeft = targetScrollLeft;
+      }
+      requestAnimationFrame(() => {
+        if (viewRef.current && activeTabIdRef.current === tab.id && viewRef.current.scrollDOM) {
+          viewRef.current.scrollDOM.scrollTop = targetScrollTop;
+          viewRef.current.scrollDOM.scrollLeft = targetScrollLeft;
+        }
+      });
+
       view.focus();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -215,12 +329,17 @@ export function CodeEditor({ tab }: CodeEditorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab.content, tab.isDirty]);
 
-  // Prune closed tabs from state cache
+  // Prune closed tabs from state and scroll caches
   useEffect(() => {
     const openIds = new Set(tabs.map((t) => t.id));
     for (const cachedId of stateCacheRef.current.keys()) {
       if (!openIds.has(cachedId)) {
         stateCacheRef.current.delete(cachedId);
+      }
+    }
+    for (const cachedId of scrollCacheRef.current.keys()) {
+      if (!openIds.has(cachedId)) {
+        scrollCacheRef.current.delete(cachedId);
       }
     }
   }, [tabs]);

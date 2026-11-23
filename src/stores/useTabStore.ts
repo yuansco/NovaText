@@ -12,6 +12,8 @@ interface TabState {
   closeTabImmediate: (id: string) => void;
   updateTabContent: (id: string, content: string) => void;
   updateTabCursor: (id: string, line: number, col: number) => void;
+  updateTabScroll: (id: string, scrollTop: number) => void;
+  updateTabCursorAndScroll: (id: string, line: number, col: number, scrollTop: number) => void;
   markTabSaved: (id: string, filePath: string, savedContent: string, byteSize: number) => void;
   setTabLineEnding: (id: string, lineEnding: LineEnding) => void;
   setTabEncoding: (id: string, encoding: FileEncoding) => void;
@@ -129,6 +131,27 @@ export const useTabStore = create<TabState>((set, get) => ({
       tabs: get().tabs.map((tab) =>
         tab.id === id && (tab.cursor.line !== line || tab.cursor.col !== col)
           ? { ...tab, cursor: { line, col } }
+          : tab,
+      ),
+    });
+  },
+
+  updateTabScroll: (id, scrollTop) => {
+    set({
+      tabs: get().tabs.map((tab) =>
+        tab.id === id && tab.scrollTop !== scrollTop
+          ? { ...tab, scrollTop }
+          : tab,
+      ),
+    });
+  },
+
+  updateTabCursorAndScroll: (id, line, col, scrollTop) => {
+    set({
+      tabs: get().tabs.map((tab) =>
+        tab.id === id &&
+        (tab.cursor.line !== line || tab.cursor.col !== col || tab.scrollTop !== scrollTop)
+          ? { ...tab, cursor: { line, col }, scrollTop }
           : tab,
       ),
     });

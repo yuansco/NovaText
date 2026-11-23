@@ -94,4 +94,20 @@ describe('useTabStore', () => {
     store.reorderTabs(-1, 2);
     expect(useTabStore.getState().tabs.map((t) => t.id)).toEqual([id2, id1, id3]);
   });
+
+  it('updates tab scroll position and cursor', () => {
+    const store = useTabStore.getState();
+    const id = store.createNewTab();
+
+    expect(useTabStore.getState().tabs[0].scrollTop).toBe(0);
+    expect(useTabStore.getState().tabs[0].cursor).toEqual({ line: 1, col: 1 });
+
+    store.updateTabScroll(id, 450);
+    expect(useTabStore.getState().tabs[0].scrollTop).toBe(450);
+
+    store.updateTabCursorAndScroll(id, 42, 10, 800);
+    expect(useTabStore.getState().tabs[0].cursor).toEqual({ line: 42, col: 10 });
+    expect(useTabStore.getState().tabs[0].scrollTop).toBe(800);
+  });
 });
+
