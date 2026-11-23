@@ -18,6 +18,7 @@ export const SHORTCUT_COMMANDS: ShortcutCommandMeta[] = [
   { id: 'view.toggleSidebar', label: 'Toggle Sidebar', category: 'View' },
   { id: 'view.toggleTerminal', label: 'Toggle Terminal', category: 'View' },
   { id: 'view.commandPalette', label: 'Command Palette', category: 'View' },
+  { id: 'view.toggleSettings', label: 'Toggle Settings', category: 'View' },
   { id: 'editor.zoomIn', label: 'Zoom In Editor Font', category: 'Editor' },
   { id: 'editor.zoomOut', label: 'Zoom Out Editor Font', category: 'Editor' },
   { id: 'editor.zoomReset', label: 'Reset Editor Font Size', category: 'Editor' },

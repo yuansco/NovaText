@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { FolderSearchMatch } from '@shared/types/ipc';
+import { getActiveEditorView } from '@/editor/editorController';
 import { getNovaAPI, hasNovaAPI } from '@/ipc/novaApi';
 
 export type BottomPanelView = 'terminal' | 'folder-search';
@@ -75,6 +76,7 @@ export const useBottomPanelStore = create<BottomPanelState>((set, get) => ({
     const { isOpen, activeView, sessions, createTerminal } = get();
     if (isOpen && activeView === 'terminal') {
       set({ isOpen: false });
+      getActiveEditorView()?.focus();
       return;
     }
     set({ isOpen: true, activeView: 'terminal' });
@@ -89,6 +91,7 @@ export const useBottomPanelStore = create<BottomPanelState>((set, get) => ({
     const { isOpen, activeView } = get();
     if (isOpen && activeView === 'folder-search') {
       set({ isOpen: false });
+      getActiveEditorView()?.focus();
     } else {
       set({ isOpen: true, activeView: 'folder-search' });
     }

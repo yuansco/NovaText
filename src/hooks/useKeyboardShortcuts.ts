@@ -11,12 +11,15 @@ import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useTabStore } from '@/stores/useTabStore';
 import { matchesShortcut } from '@/utils/shortcuts';
 
-export function useKeyboardShortcuts(onOpenCommandPalette: () => void): void {
+export function useKeyboardShortcuts(
+  onToggleCommandPalette: () => void,
+  onToggleSettings?: () => void,
+): void {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'F1') {
         e.preventDefault();
-        onOpenCommandPalette();
+        onToggleCommandPalette();
         return;
       }
 
@@ -24,7 +27,7 @@ export function useKeyboardShortcuts(onOpenCommandPalette: () => void): void {
 
       if (matchesShortcut(e, kb['view.commandPalette'])) {
         e.preventDefault();
-        onOpenCommandPalette();
+        onToggleCommandPalette();
         return;
       }
 
@@ -63,19 +66,25 @@ export function useKeyboardShortcuts(onOpenCommandPalette: () => void): void {
 
       if (matchesShortcut(e, kb['search.find'])) {
         e.preventDefault();
-        useSearchStore.getState().openFind();
+        useSearchStore.getState().toggleFind();
         return;
       }
 
       if (matchesShortcut(e, kb['search.replace'])) {
         e.preventDefault();
-        useSearchStore.getState().openReplace();
+        useSearchStore.getState().toggleReplace();
         return;
       }
 
       if (matchesShortcut(e, kb['search.findInFolder'])) {
         e.preventDefault();
-        useBottomPanelStore.getState().openFolderSearch();
+        useBottomPanelStore.getState().toggleFolderSearch();
+        return;
+      }
+
+      if (matchesShortcut(e, kb['view.toggleSettings'] ?? 'Ctrl+,')) {
+        e.preventDefault();
+        onToggleSettings?.();
         return;
       }
 
@@ -152,5 +161,5 @@ export function useKeyboardShortcuts(onOpenCommandPalette: () => void): void {
       window.removeEventListener('keydown', handleKeyDown, true);
       window.removeEventListener('wheel', handleWheel, { capture: true });
     };
-  }, [onOpenCommandPalette]);
+  }, [onToggleCommandPalette, onToggleSettings]);
 }

@@ -20,11 +20,11 @@ import { useTabStore } from '@/stores/useTabStore';
 import { getUIThemeById } from '@/themes/presets';
 
 interface HeaderToolbarProps {
-  onOpenSettings: () => void;
-  onOpenCommandPalette: () => void;
+  onToggleSettings: () => void;
+  onToggleCommandPalette: () => void;
 }
 
-export function HeaderToolbar({ onOpenSettings, onOpenCommandPalette }: HeaderToolbarProps) {
+export function HeaderToolbar({ onToggleSettings, onToggleCommandPalette }: HeaderToolbarProps) {
   const { settings, updateUI, toggleDarkLight } = useSettingsStore();
   const { createNewTab, getActiveTab } = useTabStore();
   const { isOpen: isSearchOpen, toggleFind } = useSearchStore();
@@ -141,7 +141,7 @@ export function HeaderToolbar({ onOpenSettings, onOpenCommandPalette }: HeaderTo
 
         <button
           type="button"
-          onClick={onOpenCommandPalette}
+          onClick={onToggleCommandPalette}
           title={t.commandPalette}
           className="rounded p-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
         >
@@ -159,7 +159,7 @@ export function HeaderToolbar({ onOpenSettings, onOpenCommandPalette }: HeaderTo
 
         <button
           type="button"
-          onClick={onOpenSettings}
+          onClick={onToggleSettings}
           title={t.settings}
           className="rounded p-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
         >

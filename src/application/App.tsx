@@ -6,6 +6,7 @@ import { ExternalChangeBanner } from '@/components/ExternalChangeBanner';
 import { HeaderToolbar } from '@/components/HeaderToolbar';
 import { StatusBar } from '@/components/StatusBar';
 import { CodeEditor } from '@/editor/CodeEditor';
+import { getActiveEditorView } from '@/editor/editorController';
 import {
   handleWindowCloseRequest,
   openFileDialog,
@@ -35,7 +36,10 @@ export function App() {
   const activeTab = tabs.find((t) => t.id === activeTabId);
   const t = useT();
 
-  useKeyboardShortcuts(() => setPaletteOpen(true));
+  useKeyboardShortcuts(
+    () => setPaletteOpen((prev) => !prev),
+    () => setSettingsOpen((prev) => !prev),
+  );
 
   useEffect(() => {
     let cleanupBeforeClose: (() => void) | undefined;
@@ -218,8 +222,8 @@ export function App() {
         </div>
       )}
       <HeaderToolbar
-        onOpenSettings={() => setSettingsOpen(true)}
-        onOpenCommandPalette={() => setPaletteOpen(true)}
+        onToggleSettings={() => setSettingsOpen((prev) => !prev)}
+        onToggleCommandPalette={() => setPaletteOpen((prev) => !prev)}
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
@@ -275,10 +279,19 @@ export function App() {
 
       <StatusBar />
 
-      <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsModal
+        isOpen={settingsOpen}
+        onClose={() => {
+          setSettingsOpen(false);
+          getActiveEditorView()?.focus();
+        }}
+      />
       <CommandPalette
         isOpen={paletteOpen}
-        onClose={() => setPaletteOpen(false)}
+        onClose={() => {
+          setPaletteOpen(false);
+          getActiveEditorView()?.focus();
+        }}
         onOpenSettings={() => setSettingsOpen(true)}
       />
     </div>

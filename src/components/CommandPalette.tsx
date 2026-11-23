@@ -97,14 +97,14 @@ export function CommandPalette({ isOpen, onClose, onOpenSettings }: CommandPalet
         label: 'Find in File',
         category: 'Search',
         shortcut: kb['search.find'],
-        action: () => useSearchStore.getState().openFind(),
+        action: () => useSearchStore.getState().toggleFind(),
       },
       {
         id: 'search.replace',
         label: 'Replace in File',
         category: 'Search',
         shortcut: kb['search.replace'],
-        action: () => useSearchStore.getState().openReplace(),
+        action: () => useSearchStore.getState().toggleReplace(),
       },
       {
         id: 'search.results',
@@ -117,7 +117,7 @@ export function CommandPalette({ isOpen, onClose, onOpenSettings }: CommandPalet
         label: 'Find in Folder...',
         category: 'Search',
         shortcut: kb['search.findInFolder'],
-        action: () => useBottomPanelStore.getState().openFolderSearch(),
+        action: () => useBottomPanelStore.getState().toggleFolderSearch(),
       },
       {
         id: 'view.toggleTerminal',
@@ -173,9 +173,10 @@ export function CommandPalette({ isOpen, onClose, onOpenSettings }: CommandPalet
         action: () => useSettingsStore.getState().resetEditorFont(),
       },
       {
-        id: 'app.settings',
-        label: 'Open Settings',
+        id: 'view.toggleSettings',
+        label: 'Toggle Settings',
         category: 'Preferences',
+        shortcut: kb['view.toggleSettings'] ?? 'Ctrl+,',
         action: onOpenSettings,
       },
     ];

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getActiveEditorView } from '@/editor/editorController';
 import type { SearchMatch } from '@/search/searchEngine';
 
 interface SearchState {
@@ -18,6 +19,7 @@ interface SearchState {
   openFind: () => void;
   toggleFind: () => void;
   openReplace: () => void;
+  toggleReplace: () => void;
   close: () => void;
   toggleResultsPanel: () => void;
   setResultsPanelOpen: (open: boolean) => void;
@@ -47,10 +49,29 @@ export const useSearchStore = create<SearchState>((set) => ({
   regexError: null,
 
   openFind: () => set({ isOpen: true, showReplace: false }),
-  toggleFind: () =>
-    set((s) => (s.isOpen ? { isOpen: false } : { isOpen: true, showReplace: false })),
+  toggleFind: () => {
+    set((s) => {
+      if (s.isOpen) {
+        getActiveEditorView()?.focus();
+        return { isOpen: false };
+      }
+      return { isOpen: true, showReplace: false };
+    });
+  },
   openReplace: () => set({ isOpen: true, showReplace: true }),
-  close: () => set({ isOpen: false }),
+  toggleReplace: () => {
+    set((s) => {
+      if (s.isOpen && s.showReplace) {
+        getActiveEditorView()?.focus();
+        return { isOpen: false };
+      }
+      return { isOpen: true, showReplace: true };
+    });
+  },
+  close: () => {
+    set({ isOpen: false });
+    getActiveEditorView()?.focus();
+  },
   toggleResultsPanel: () => set((s) => ({ showResultsPanel: !s.showResultsPanel })),
   setResultsPanelOpen: (showResultsPanel) => set({ showResultsPanel }),
   setQuery: (query) => set({ query }),

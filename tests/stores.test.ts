@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { useBottomPanelStore } from '../src/stores/useBottomPanelStore';
+import { useSearchStore } from '../src/stores/useSearchStore';
 import { useSidebarStore } from '../src/stores/useSidebarStore';
 import { useTabStore } from '../src/stores/useTabStore';
 
@@ -110,4 +112,53 @@ describe('useTabStore', () => {
     expect(useTabStore.getState().tabs[0].scrollTop).toBe(800);
   });
 });
+
+describe('useSearchStore toggle operations', () => {
+  beforeEach(() => {
+    useSearchStore.setState({ isOpen: false, showReplace: false });
+  });
+
+  it('toggles find panel on and off', () => {
+    const store = useSearchStore.getState();
+    expect(useSearchStore.getState().isOpen).toBe(false);
+
+    store.toggleFind();
+    expect(useSearchStore.getState().isOpen).toBe(true);
+    expect(useSearchStore.getState().showReplace).toBe(false);
+
+    store.toggleFind();
+    expect(useSearchStore.getState().isOpen).toBe(false);
+  });
+
+  it('toggles replace panel on and off', () => {
+    const store = useSearchStore.getState();
+    expect(useSearchStore.getState().isOpen).toBe(false);
+
+    store.toggleReplace();
+    expect(useSearchStore.getState().isOpen).toBe(true);
+    expect(useSearchStore.getState().showReplace).toBe(true);
+
+    store.toggleReplace();
+    expect(useSearchStore.getState().isOpen).toBe(false);
+  });
+});
+
+describe('useBottomPanelStore toggle operations', () => {
+  beforeEach(() => {
+    useBottomPanelStore.setState({ isOpen: false, activeView: 'terminal' });
+  });
+
+  it('toggles folder search on and off', () => {
+    const store = useBottomPanelStore.getState();
+    expect(useBottomPanelStore.getState().isOpen).toBe(false);
+
+    store.toggleFolderSearch();
+    expect(useBottomPanelStore.getState().isOpen).toBe(true);
+    expect(useBottomPanelStore.getState().activeView).toBe('folder-search');
+
+    store.toggleFolderSearch();
+    expect(useBottomPanelStore.getState().isOpen).toBe(false);
+  });
+});
+
 

@@ -77,6 +77,7 @@ export const DEFAULT_KEYBINDINGS: Record<string, string> = {
   'view.toggleSidebar': 'Ctrl+B',
   'view.toggleTerminal': 'Ctrl+`',
   'view.commandPalette': 'Ctrl+Shift+P',
+  'view.toggleSettings': 'Ctrl+,',
   'editor.zoomIn': 'Ctrl+=',
   'editor.zoomOut': 'Ctrl+-',
   'editor.zoomReset': 'Ctrl+0',
