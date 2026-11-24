@@ -6,6 +6,7 @@ import { ExternalChangeBanner } from '@/components/ExternalChangeBanner';
 import { HeaderToolbar } from '@/components/HeaderToolbar';
 import { StatusBar } from '@/components/StatusBar';
 import { CodeEditor } from '@/editor/CodeEditor';
+import { MarkdownPreview } from '@/markdown/MarkdownPreview';
 import { getActiveEditorView } from '@/editor/editorController';
 import {
   handleWindowCloseRequest,
@@ -236,7 +237,18 @@ export function App() {
 
           <div className="relative min-h-0 flex-1 overflow-hidden">
             {activeTab ? (
-              <CodeEditor tab={activeTab} />
+              <>
+                <div
+                  className={`h-full w-full ${
+                    activeTab.isMarkdownPreview ? 'hidden' : 'block'
+                  }`}
+                >
+                  <CodeEditor tab={activeTab} />
+                </div>
+                {activeTab.isMarkdownPreview && (
+                  <MarkdownPreview tab={activeTab} />
+                )}
+              </>
             ) : (
               <div className="flex h-full flex-col items-center justify-center gap-4 text-center select-none">
                 <div className="space-y-1">

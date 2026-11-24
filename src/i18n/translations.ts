@@ -157,6 +157,11 @@ const en = {
   softwareIntro: 'Software Introduction',
   license: 'License',
   author: 'Author',
+
+  // Markdown Preview
+  switchToMarkdownPreview: 'Preview Markdown',
+  switchToEditor: 'Switch to Editor',
+  markdownPreviewBadge: 'Markdown Preview (Read-only)',
 } as const;
 
 export type TranslationKeys = keyof typeof en;
@@ -317,6 +322,11 @@ const zhTW: Record<TranslationKeys, string> = {
   softwareIntro: '軟體介紹',
   license: '授權條款',
   author: '開發作者',
+
+  // Markdown Preview
+  switchToMarkdownPreview: 'Markdown 渲染預覽',
+  switchToEditor: '切換回編輯模式',
+  markdownPreviewBadge: 'Markdown 唯讀預覽模式',
 };
 
 const DICTIONARIES: Record<AppLocale, Record<TranslationKeys, string>> = {

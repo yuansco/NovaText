@@ -42,6 +42,7 @@ export function applyUIThemeAndScale(settings: AppSettings): void {
 
   root.style.setProperty('--ui-scale', String(settings.ui.scale));
   root.style.setProperty('--ui-font-size', `${settings.ui.fontSize}px`);
+  root.style.setProperty('--editor-font-size', `${settings.editor.fontSize}px`);
   root.style.setProperty('--tab-height', `${settings.ui.tabHeight}px`);
 
   root.style.setProperty('--bg-primary', c.bgPrimary);
@@ -82,6 +83,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       ...get().settings,
       editor: { ...get().settings.editor, ...patch },
     };
+    applyUIThemeAndScale(next);
     set({ settings: next });
     persistSettings(next);
   },

@@ -21,6 +21,9 @@ interface TabState {
   setExternalChange: (filePath: string, change: 'modified' | 'deleted' | null) => void;
   reloadTabFromFileResult: (id: string, file: FileReadResult) => void;
   reorderTabs: (fromIndex: number, toIndex: number) => void;
+  toggleTabMarkdownPreview: (id: string) => void;
+  setTabMarkdownPreview: (id: string, isPreview: boolean) => void;
+  updateTabScrollRatio: (id: string, ratio: number) => void;
   getActiveTab: () => TabDocument | undefined;
 }
 
@@ -242,6 +245,36 @@ export const useTabStore = create<TabState>((set, get) => ({
     const [moved] = next.splice(fromIndex, 1);
     next.splice(toIndex, 0, moved);
     set({ tabs: next });
+  },
+
+  toggleTabMarkdownPreview: (id) => {
+    set({
+      tabs: get().tabs.map((tab) =>
+        tab.id === id
+          ? { ...tab, isMarkdownPreview: !tab.isMarkdownPreview }
+          : tab,
+      ),
+    });
+  },
+
+  setTabMarkdownPreview: (id, isMarkdownPreview) => {
+    set({
+      tabs: get().tabs.map((tab) =>
+        tab.id === id
+          ? { ...tab, isMarkdownPreview }
+          : tab,
+      ),
+    });
+  },
+
+  updateTabScrollRatio: (id, scrollRatio) => {
+    set({
+      tabs: get().tabs.map((tab) =>
+        tab.id === id && tab.scrollRatio !== scrollRatio
+          ? { ...tab, scrollRatio }
+          : tab,
+      ),
+    });
   },
 
   getActiveTab: () => {

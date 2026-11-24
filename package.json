@@ -103,8 +103,10 @@
     "@lezer/highlight": "^1.2.1",
     "@xterm/addon-fit": "^0.11.0",
     "@xterm/xterm": "^6.0.0",
+    "dompurify": "^3.5.0",
     "iconv-lite": "^0.6.3",
     "lucide-react": "^0.460.0",
+    "marked": "^18.2.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zustand": "^5.0.1"
@@ -112,6 +114,7 @@
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "@tailwindcss/vite": "^4.0.0",
+    "@types/dompurify": "^3.0.5",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FileCode2, Pin, PinOff, Plus, X } from 'lucide-react';
+import { getActiveEditorView } from '@/editor/editorController';
 import {
   closeOtherTabs,
   closeTabsToTheRight,
@@ -20,7 +21,14 @@ interface TabContextMenuState {
 }
 
 export function TabBar() {
-  const { tabs, activeTabId, setActiveTab, createNewTab, reorderTabs } = useTabStore();
+  const {
+    tabs,
+    activeTabId,
+    setActiveTab,
+    createNewTab,
+    reorderTabs,
+    toggleTabMarkdownPreview,
+  } = useTabStore();
   const { pinnedFiles, pinFile, unpinFile } = useSidebarStore();
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -29,6 +37,24 @@ export function TabBar() {
   const tabBarRef = useRef<HTMLDivElement | null>(null);
   const tabListRef = useRef<HTMLDivElement | null>(null);
   const t = useT();
+
+  const handleToggleMarkdownPreview = (tabId: string) => {
+    const currentTab = tabs.find((t) => t.id === tabId);
+    if (!currentTab) return;
+
+    if (tabId === activeTabId && !currentTab.isMarkdownPreview) {
+      const view = getActiveEditorView();
+      if (view && view.scrollDOM) {
+        const maxScroll = view.scrollDOM.scrollHeight - view.scrollDOM.clientHeight;
+        const ratio = maxScroll > 0 ? view.scrollDOM.scrollTop / maxScroll : 0;
+        useTabStore.getState().updateTabScrollRatio(tabId, ratio);
+        useTabStore.getState().updateTabScroll(tabId, view.scrollDOM.scrollTop);
+      }
+    } else if (tabId !== activeTabId) {
+      setActiveTab(tabId);
+    }
+    toggleTabMarkdownPreview(tabId);
+  };
 
   const pinnedSet = new Set(pinnedFiles.map((p) => p.filePath));
 
@@ -142,6 +168,9 @@ export function TabBar() {
           const isPinned = tab.filePath ? pinnedSet.has(tab.filePath) : false;
           const isDragging = draggedIndex === index;
           const isDragOver = dragOverIndex === index && draggedIndex !== null && draggedIndex !== index;
+          const isMarkdownFile =
+            tab.title.toLowerCase().endsWith('.md') ||
+            (tab.filePath ? tab.filePath.toLowerCase().endsWith('.md') : false);
 
           return (
             <div
@@ -219,6 +248,29 @@ export function TabBar() {
             >
               <FileCode2 size={14} className="shrink-0 opacity-85" />
               <span className="truncate flex-1">{tab.title}</span>
+
+              {/* MD Preview Toggle Button for .md files */}
+              {isMarkdownFile && (
+                <button
+                  type="button"
+                  draggable={false}
+                  onDragStart={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleMarkdownPreview(tab.id);
+                  }}
+                  title={tab.isMarkdownPreview ? t.switchToEditor : t.switchToMarkdownPreview}
+                  className={`h-5 px-1.5 shrink-0 items-center justify-center rounded text-[10px] font-bold tracking-tight transition-all select-none ${
+                    tab.isMarkdownPreview
+                      ? 'flex bg-[var(--accent-color)] text-white shadow-sm ring-1 ring-[var(--accent-color)]'
+                      : isActive
+                        ? 'flex text-[var(--text-secondary)] border border-[var(--border-color)] hover:border-[var(--accent-color)] hover:text-[var(--accent-color)] hover:bg-[var(--bg-hover)]'
+                        : 'hidden group-hover:flex text-[var(--text-secondary)] border border-[var(--border-color)]/60 hover:border-[var(--accent-color)] hover:text-[var(--accent-color)] hover:bg-[var(--bg-hover)]'
+                  }`}
+                >
+                  MD
+                </button>
+              )}
 
               {tab.filePath && (
                 <button
@@ -373,6 +425,27 @@ export function TabBar() {
               <span>{t.reloadFromDisk}</span>
             </button>
           )}
+
+          {/* Markdown Preview Toggle in Context Menu */}
+          {targetTab &&
+            (targetTab.title.toLowerCase().endsWith('.md') ||
+              (targetTab.filePath ? targetTab.filePath.toLowerCase().endsWith('.md') : false)) && (
+              <button
+                type="button"
+                className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-[var(--bg-hover)] text-left"
+                onClick={() => {
+                  setContextMenu(null);
+                  handleToggleMarkdownPreview(targetTab.id);
+                }}
+              >
+                <span>
+                  {targetTab.isMarkdownPreview ? t.switchToEditor : t.switchToMarkdownPreview}
+                </span>
+                <span className="rounded bg-[var(--accent-color)]/15 px-1 text-[10px] font-mono text-[var(--accent-color)]">
+                  MD
+                </span>
+              </button>
+            )}
 
           <div className="my-1 border-t" style={{ borderColor: 'var(--border-color)' }} />
 

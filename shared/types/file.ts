@@ -35,4 +35,6 @@ export interface TabDocument {
   scrollTop: number;
   byteSize: number;
   externalChange?: 'modified' | 'deleted' | null;
+  isMarkdownPreview?: boolean;
+  scrollRatio?: number;
 }

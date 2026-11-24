@@ -111,6 +111,22 @@ describe('useTabStore', () => {
     expect(useTabStore.getState().tabs[0].cursor).toEqual({ line: 42, col: 10 });
     expect(useTabStore.getState().tabs[0].scrollTop).toBe(800);
   });
+
+  it('toggles markdown preview and preserves scroll ratio in useTabStore', () => {
+    const store = useTabStore.getState();
+    const id = store.createNewTab();
+    expect(useTabStore.getState().tabs[0].isMarkdownPreview).toBeFalsy();
+
+    store.toggleTabMarkdownPreview(id);
+    expect(useTabStore.getState().tabs[0].isMarkdownPreview).toBe(true);
+
+    store.updateTabScrollRatio(id, 0.45);
+    expect(useTabStore.getState().tabs[0].scrollRatio).toBe(0.45);
+
+    store.toggleTabMarkdownPreview(id);
+    expect(useTabStore.getState().tabs[0].isMarkdownPreview).toBe(false);
+    expect(useTabStore.getState().tabs[0].scrollRatio).toBe(0.45);
+  });
 });
 
 describe('useSearchStore toggle operations', () => {

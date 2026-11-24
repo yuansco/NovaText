@@ -329,6 +329,35 @@ export function CodeEditor({ tab }: CodeEditorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab.content, tab.isDirty]);
 
+  // Restore scroll position when returning from Markdown Preview mode
+  useEffect(() => {
+    if (!tab.isMarkdownPreview && tab.scrollRatio !== undefined) {
+      const view = viewRef.current;
+      if (!view || !view.scrollDOM) return;
+      view.requestMeasure();
+      const applyEditorScroll = () => {
+        if (!view.scrollDOM) return;
+        const maxScroll = view.scrollDOM.scrollHeight - view.scrollDOM.clientHeight;
+        if (maxScroll > 0) {
+          const targetScrollTop = Math.round(tab.scrollRatio! * maxScroll);
+          view.scrollDOM.scrollTop = targetScrollTop;
+          scrollCacheRef.current.set(tab.id, {
+            scrollTop: targetScrollTop,
+            scrollLeft: 0,
+            snapshot: getScrollSnapshot(view),
+          });
+        }
+      };
+      applyEditorScroll();
+      const raf = requestAnimationFrame(applyEditorScroll);
+      const timer = setTimeout(applyEditorScroll, 60);
+      return () => {
+        cancelAnimationFrame(raf);
+        clearTimeout(timer);
+      };
+    }
+  }, [tab.isMarkdownPreview, tab.scrollRatio, tab.id]);
+
   // Prune closed tabs from state and scroll caches
   useEffect(() => {
     const openIds = new Set(tabs.map((t) => t.id));
