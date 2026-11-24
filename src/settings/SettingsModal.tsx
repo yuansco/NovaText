@@ -16,7 +16,13 @@ import type { EditorTheme, UITheme } from '@shared/types/theme';
 import packageJson from '../../package.json';
 import { useT } from '@/i18n/translations';
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { EDITOR_THEMES, resolveEditorTheme, resolveUITheme, UI_THEMES } from '@/themes/presets';
+import {
+  EDITOR_THEMES,
+  resolveEditorTheme,
+  resolveUITheme,
+  THEME_PRESETS,
+  UI_THEMES,
+} from '@/themes/presets';
 import {
   detectShortcutConflicts,
   eventToShortcutString,
@@ -36,6 +42,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     setLocale,
     updateEditor,
     updateUI,
+    setThemePreset,
     setUITheme,
     setEditorTheme,
     setCustomUITheme,
@@ -402,55 +409,175 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           )}
 
           {activeTab === 'themes' && (
-            <div className="space-y-5">
-              <div className="flex items-center justify-between">
-                <span className="text-[var(--text-secondary)]">
-                  Customize UI & Editor colors or import/export JSON configuration.
-                </span>
-                <div className="flex items-center gap-2">
-                  <input
-                    ref={importInputRef}
-                    type="file"
-                    accept=".json"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void handleImportTheme(file);
-                      e.target.value = '';
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => importInputRef.current?.click()}
-                    className="flex items-center gap-1 rounded border px-2 py-1 hover:bg-[var(--bg-hover)]"
-                    style={{ borderColor: 'var(--border-color)' }}
-                  >
-                    <Upload size={12} />
-                    Import JSON
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleExportTheme}
-                    className="flex items-center gap-1 rounded border px-2 py-1 hover:bg-[var(--bg-hover)]"
-                    style={{ borderColor: 'var(--border-color)' }}
-                  >
-                    <Download size={12} />
-                    Export JSON
-                  </button>
+            <div className="space-y-6">
+              {/* Preset Themes Section */}
+              <section className="space-y-3">
+                <div>
+                  <h3 className="text-xs font-semibold text-[var(--text-primary)]">
+                    {t.themePresetsTitle}
+                  </h3>
+                  <p className="mt-0.5 text-[11px] text-[var(--text-muted)]">
+                    {t.themePresetsDescription}
+                  </p>
                 </div>
-              </div>
 
-              {themeImportError && (
-                <div className="rounded border border-[var(--danger-color)] px-2.5 py-1.5 text-[var(--danger-color)]">
-                  {themeImportError}
+                <div className="grid grid-cols-2 gap-2.5">
+                  {THEME_PRESETS.map((preset) => {
+                    const isSelected =
+                      settings.uiThemeId === preset.uiTheme.id &&
+                      settings.editorThemeId === preset.editorTheme.id;
+
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => setThemePreset(preset.id)}
+                        className={`group relative flex flex-col justify-between rounded-lg border p-2.5 text-left transition-all ${
+                          isSelected
+                            ? 'border-[var(--accent-color)] ring-1 ring-[var(--accent-color)]'
+                            : 'hover:border-[var(--text-muted)] hover:bg-[var(--bg-hover)]'
+                        }`}
+                        style={{
+                          backgroundColor: preset.uiTheme.colors.bgSecondary,
+                          borderColor: isSelected
+                            ? 'var(--accent-color)'
+                            : preset.uiTheme.colors.border,
+                        }}
+                      >
+                        <div className="flex w-full items-center justify-between mb-2">
+                          <span
+                            className="font-medium text-xs truncate mr-1.5"
+                            style={{ color: preset.uiTheme.colors.textPrimary }}
+                          >
+                            {preset.name}
+                          </span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span
+                              className="rounded px-1.5 py-0.5 text-[10px] font-medium"
+                              style={{
+                                backgroundColor:
+                                  preset.mode === 'dark'
+                                    ? 'rgba(0, 0, 0, 0.4)'
+                                    : 'rgba(255, 255, 255, 0.85)',
+                                color: preset.uiTheme.colors.textSecondary,
+                              }}
+                            >
+                              {preset.mode === 'dark' ? t.darkThemeBadge : t.lightThemeBadge}
+                            </span>
+                            {isSelected && (
+                              <span
+                                className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium text-white"
+                                style={{ backgroundColor: preset.uiTheme.colors.accent }}
+                              >
+                                <Check size={10} strokeWidth={3} />
+                                {t.activeThemeBadge}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Palette Preview Bar */}
+                        <div
+                          className="flex h-4 w-full items-center overflow-hidden rounded border"
+                          style={{ borderColor: preset.uiTheme.colors.border }}
+                        >
+                          <div
+                            className="h-full flex-1"
+                            style={{ backgroundColor: preset.uiTheme.colors.bgPrimary }}
+                            title="UI Primary Bg"
+                          />
+                          <div
+                            className="h-full flex-1"
+                            style={{ backgroundColor: preset.uiTheme.colors.bgSidebar }}
+                            title="Sidebar Bg"
+                          />
+                          <div
+                            className="h-full flex-1"
+                            style={{ backgroundColor: preset.editorTheme.colors.background }}
+                            title="Editor Bg"
+                          />
+                          <div
+                            className="h-full w-4"
+                            style={{ backgroundColor: preset.uiTheme.colors.accent }}
+                            title="Accent"
+                          />
+                          <div
+                            className="h-full w-3"
+                            style={{ backgroundColor: preset.editorTheme.syntax.keyword }}
+                            title="Keyword"
+                          />
+                          <div
+                            className="h-full w-3"
+                            style={{ backgroundColor: preset.editorTheme.syntax.string }}
+                            title="String"
+                          />
+                          <div
+                            className="h-full w-3"
+                            style={{ backgroundColor: preset.editorTheme.syntax.function }}
+                            title="Function"
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
-              )}
+              </section>
 
-              <section className="space-y-2">
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                  UI Colors
-                </h3>
-                <div className="grid grid-cols-3 gap-2.5">
+              {/* Custom Colors & Import/Export Section */}
+              <section className="space-y-4 pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xs font-semibold text-[var(--text-primary)]">
+                      {t.customColorsTitle}
+                    </h3>
+                    <p className="mt-0.5 text-[11px] text-[var(--text-muted)]">
+                      {t.customThemeHint}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={importInputRef}
+                      type="file"
+                      accept=".json"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) void handleImportTheme(file);
+                        e.target.value = '';
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => importInputRef.current?.click()}
+                      className="flex items-center gap-1 rounded border px-2 py-1 hover:bg-[var(--bg-hover)]"
+                      style={{ borderColor: 'var(--border-color)' }}
+                    >
+                      <Upload size={12} />
+                      {t.importJson}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleExportTheme}
+                      className="flex items-center gap-1 rounded border px-2 py-1 hover:bg-[var(--bg-hover)]"
+                      style={{ borderColor: 'var(--border-color)' }}
+                    >
+                      <Download size={12} />
+                      {t.exportJson}
+                    </button>
+                  </div>
+                </div>
+
+                {themeImportError && (
+                  <div className="rounded border border-[var(--danger-color)] px-2.5 py-1.5 text-[var(--danger-color)]">
+                    {themeImportError}
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    {t.uiColors}
+                  </h4>
+                  <div className="grid grid-cols-3 gap-2.5">
                   {(
                     [
                       ['bgPrimary', 'Primary Bg'],
@@ -474,14 +601,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       />
                     </label>
                   ))}
+                  </div>
                 </div>
-              </section>
 
-              <section className="space-y-2">
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                  Editor & Syntax Colors
-                </h3>
-                <div className="grid grid-cols-3 gap-2.5">
+                <div className="space-y-2">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    {t.editorSyntaxColors}
+                  </h4>
+                  <div className="grid grid-cols-3 gap-2.5">
                   {(
                     [
                       ['background', 'Editor Bg'],
@@ -528,6 +655,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       />
                     </label>
                   ))}
+                  </div>
                 </div>
               </section>
             </div>

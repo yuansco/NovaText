@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { DEFAULT_APP_SETTINGS, type AppLocale, type AppSettings, type EditorSettings, type QuickCommand, type UISettings } from '@shared/types/settings';
 import type { EditorTheme, UITheme } from '@shared/types/theme';
 import { getNovaAPI, hasNovaAPI } from '@/ipc/novaApi';
-import { resolveUITheme } from '@/themes/presets';
+import { resolveUITheme, THEME_PRESETS } from '@/themes/presets';
 
 interface SettingsState {
   settings: AppSettings;
@@ -11,6 +11,7 @@ interface SettingsState {
   setLocale: (locale: AppLocale) => void;
   updateEditor: (patch: Partial<EditorSettings>) => void;
   updateUI: (patch: Partial<UISettings>) => void;
+  setThemePreset: (presetId: string) => void;
   setUITheme: (themeId: string) => void;
   setEditorTheme: (themeId: string) => void;
   setCustomUITheme: (theme: UITheme) => void;
@@ -36,6 +37,7 @@ function persistSettings(settings: AppSettings): void {
 }
 
 export function applyUIThemeAndScale(settings: AppSettings): void {
+  if (typeof document === 'undefined') return;
   const root = document.documentElement;
   const theme = resolveUITheme(settings.uiThemeId, settings.customUITheme);
   const c = theme.colors;
@@ -92,6 +94,20 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     const next: AppSettings = {
       ...get().settings,
       ui: { ...get().settings.ui, ...patch },
+    };
+    applyUIThemeAndScale(next);
+    set({ settings: next });
+    persistSettings(next);
+  },
+
+  setThemePreset: (presetId) => {
+    const preset = THEME_PRESETS.find((p) => p.id === presetId);
+    if (!preset) return;
+    const current = get().settings;
+    const next: AppSettings = {
+      ...current,
+      uiThemeId: preset.uiTheme.id,
+      editorThemeId: preset.editorTheme.id,
     };
     applyUIThemeAndScale(next);
     set({ settings: next });
@@ -179,10 +195,19 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   toggleDarkLight: () => {
     const current = get().settings;
     const isCurrentlyDark = resolveUITheme(current.uiThemeId, current.customUITheme).mode === 'dark';
+    let targetPresetId: string;
+    if (current.uiThemeId.includes('github')) {
+      targetPresetId = isCurrentlyDark ? 'github-light' : 'github-dark';
+    } else if (current.uiThemeId.includes('solarized')) {
+      targetPresetId = isCurrentlyDark ? 'solarized-light' : 'solarized-dark';
+    } else {
+      targetPresetId = isCurrentlyDark ? 'nova-light' : 'nova-dark';
+    }
+    const preset = THEME_PRESETS.find((p) => p.id === targetPresetId) ?? THEME_PRESETS[0];
     const next: AppSettings = {
       ...current,
-      uiThemeId: isCurrentlyDark ? 'nova-light' : 'nova-dark',
-      editorThemeId: isCurrentlyDark ? 'nova-editor-light' : 'nova-editor-dark',
+      uiThemeId: preset.uiTheme.id,
+      editorThemeId: preset.editorTheme.id,
     };
     applyUIThemeAndScale(next);
     set({ settings: next });

@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { useBottomPanelStore } from '../src/stores/useBottomPanelStore';
 import { useSearchStore } from '../src/stores/useSearchStore';
+import { useSettingsStore } from '../src/stores/useSettingsStore';
 import { useSidebarStore } from '../src/stores/useSidebarStore';
 import { useTabStore } from '../src/stores/useTabStore';
+import { THEME_PRESETS } from '../src/themes/presets';
 
 describe('useSidebarStore', () => {
   beforeEach(() => {
@@ -176,5 +178,44 @@ describe('useBottomPanelStore toggle operations', () => {
     expect(useBottomPanelStore.getState().isOpen).toBe(false);
   });
 });
+
+describe('useSettingsStore theme presets', () => {
+  it('contains expected presets with matching UI and Editor themes', () => {
+    expect(THEME_PRESETS.length).toBeGreaterThanOrEqual(10);
+    for (const preset of THEME_PRESETS) {
+      expect(preset.id).toBeTruthy();
+      expect(preset.name).toBeTruthy();
+      expect(preset.uiTheme.colors.bgPrimary).toMatch(/^#[0-9a-fA-F]{6}$/);
+      expect(preset.editorTheme.colors.background).toMatch(/^#[0-9a-fA-F]{6}$/);
+      expect(preset.editorTheme.syntax.keyword).toMatch(/^#[0-9a-fA-F]{6}$/);
+    }
+  });
+
+  it('applies theme presets correctly', () => {
+    const store = useSettingsStore.getState();
+    store.setThemePreset('dracula');
+
+    expect(useSettingsStore.getState().settings.uiThemeId).toBe('dracula');
+    expect(useSettingsStore.getState().settings.editorThemeId).toBe('dracula-editor');
+
+    store.setThemePreset('nord');
+    expect(useSettingsStore.getState().settings.uiThemeId).toBe('nord');
+    expect(useSettingsStore.getState().settings.editorThemeId).toBe('nord-editor');
+  });
+
+  it('toggles dark and light mode intelligently', () => {
+    const store = useSettingsStore.getState();
+    store.setThemePreset('github-dark');
+
+    store.toggleDarkLight();
+    expect(useSettingsStore.getState().settings.uiThemeId).toBe('github-light');
+    expect(useSettingsStore.getState().settings.editorThemeId).toBe('github-editor-light');
+
+    store.toggleDarkLight();
+    expect(useSettingsStore.getState().settings.uiThemeId).toBe('github-dark');
+    expect(useSettingsStore.getState().settings.editorThemeId).toBe('github-editor-dark');
+  });
+});
+
 
 
