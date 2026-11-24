@@ -7,6 +7,7 @@ import {
   ExternalLink,
   FileCode2,
   Github,
+  NotebookPen,
   RotateCcw,
   Upload,
   X,
@@ -776,8 +777,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   borderColor: 'var(--border-color)',
                 }}
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--accent-color)]/10 text-[var(--accent-color)] shadow-inner mb-3">
-                  <FileCode2 size={36} />
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--accent-color)] text-white shadow-inner mb-3">
+                  <NotebookPen size={36} />
                 </div>
                 <h1 className="text-xl font-bold tracking-tight text-[var(--text-primary)]">NovaText</h1>
                 <div className="mt-1 flex items-center gap-2">

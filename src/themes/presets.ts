@@ -32,7 +32,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         textPrimary: '#ffffff',
         textSecondary: '#e2e8f0',
         textMuted: '#94a3b8',
-        accent: '#4f8ff7',
+        accent: '#61afef',
         accentHover: '#3b7de8',
         danger: '#ef5350',
         warning: '#f59e0b',

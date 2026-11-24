@@ -24,6 +24,7 @@
     },
     "files": [
       "out/**/*",
+      "assets/**/*",
       "package.json"
     ],
     "fileAssociations": [
@@ -59,6 +60,7 @@
       }
     ],
     "linux": {
+      "icon": "assets/icons",
       "target": [
         "deb"
       ],

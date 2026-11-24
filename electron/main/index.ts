@@ -77,6 +77,7 @@ if (!gotTheLock) {
       minHeight: 520,
       show: false,
       title: 'NovaText',
+      icon: path.join(__dirname, '../../assets/icon.png'),
       backgroundColor: '#13151a',
       autoHideMenuBar: true,
       webPreferences: {
