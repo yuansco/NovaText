@@ -216,14 +216,56 @@ body,
 }
 
 .markdown-body pre {
+  position: relative;
   margin-top: 1em;
   margin-bottom: 1.2em;
   padding: 1em;
+  padding-right: 5em;
   overflow: auto;
   border-radius: 8px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   line-height: 1.5;
+}
+
+.code-copy-btn {
+  position: absolute;
+  top: 0.6em;
+  right: 0.6em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.25em 0.55em;
+  font-size: 0.78em;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  z-index: 5;
+}
+
+.markdown-body pre:hover .code-copy-btn,
+.code-copy-btn:focus,
+.code-copy-btn.copied {
+  opacity: 1;
+}
+
+.code-copy-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--accent-color);
+}
+
+.code-copy-btn.copied {
+  color: var(--success-color);
+  border-color: var(--success-color);
+  background-color: color-mix(in srgb, var(--success-color) 12%, var(--bg-elevated));
 }
 
 .markdown-body pre code {

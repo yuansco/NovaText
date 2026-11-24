@@ -128,6 +128,57 @@ export function MarkdownPreview({ tab }: MarkdownPreviewProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab.id]);
 
+  // Attach copy button to every code block (<pre>)
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const copySvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+    const checkSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+    const preElements = container.querySelectorAll<HTMLPreElement>('.markdown-body pre');
+    preElements.forEach((pre) => {
+      if (pre.querySelector('.code-copy-btn')) return;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy-btn';
+      btn.title = t.copyCode;
+      btn.setAttribute('aria-label', t.copyCode);
+      btn.innerHTML = `${copySvg}<span>${t.copyCode}</span>`;
+
+      let resetTimer: ReturnType<typeof setTimeout> | null = null;
+
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const codeEl = pre.querySelector('code');
+        let codeText = '';
+        if (codeEl) {
+          codeText = codeEl.innerText;
+        } else {
+          const clone = pre.cloneNode(true) as HTMLElement;
+          clone.querySelector('.code-copy-btn')?.remove();
+          codeText = clone.innerText;
+        }
+
+        void navigator.clipboard.writeText(codeText);
+
+        btn.classList.add('copied');
+        btn.innerHTML = `${checkSvg}<span>${t.copied}</span>`;
+
+        if (resetTimer) clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = `${copySvg}<span>${t.copyCode}</span>`;
+        }, 2000);
+      });
+
+      pre.appendChild(btn);
+    });
+  }, [htmlContent, t]);
+
   // Intercept link clicks to open external links safely
   const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;

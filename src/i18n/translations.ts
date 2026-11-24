@@ -162,6 +162,7 @@ const en = {
   switchToMarkdownPreview: 'Preview Markdown',
   switchToEditor: 'Switch to Editor',
   markdownPreviewBadge: 'Markdown Preview (Read-only)',
+  copyCode: 'Copy',
 } as const;
 
 export type TranslationKeys = keyof typeof en;
@@ -327,6 +328,7 @@ const zhTW: Record<TranslationKeys, string> = {
   switchToMarkdownPreview: 'Markdown 渲染預覽',
   switchToEditor: '切換回編輯模式',
   markdownPreviewBadge: 'Markdown 唯讀預覽模式',
+  copyCode: '複製',
 };
 
 const DICTIONARIES: Record<AppLocale, Record<TranslationKeys, string>> = {
