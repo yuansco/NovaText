@@ -1,7 +1,7 @@
 {
   "name": "novatext",
   "desktopName": "novatext",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "NovaText — Lightweight, fast, cross-platform developer text editor",
   "author": "NovaText <dev@novatext.app>",
   "homepage": "https://github.com/yuansco/NovaText",
