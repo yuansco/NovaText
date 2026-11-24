@@ -7,7 +7,7 @@ import {
   indentOnInput,
   indentUnit,
 } from '@codemirror/language';
-import { highlightSelectionMatches, search, searchKeymap } from '@codemirror/search';
+import { highlightSelectionMatches, search } from '@codemirror/search';
 import { Compartment, EditorState, StateEffect } from '@codemirror/state';
 import {
   drawSelection,
@@ -127,7 +127,6 @@ export function CodeEditor({ tab }: CodeEditorProps) {
           ...defaultKeymap,
           ...historyKeymap,
           ...foldKeymap,
-          ...searchKeymap,
           indentWithTab,
         ]),
         c.folding.of(isLargeFile ? [] : foldGutter()),

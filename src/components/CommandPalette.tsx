@@ -173,6 +173,27 @@ export function CommandPalette({ isOpen, onClose, onOpenSettings }: CommandPalet
         action: () => useSettingsStore.getState().resetEditorFont(),
       },
       {
+        id: 'ui.zoomIn',
+        label: 'Increase UI Scale',
+        category: 'View',
+        shortcut: kb['ui.zoomIn'],
+        action: () => useSettingsStore.getState().zoomUIScale(0.05),
+      },
+      {
+        id: 'ui.zoomOut',
+        label: 'Decrease UI Scale',
+        category: 'View',
+        shortcut: kb['ui.zoomOut'],
+        action: () => useSettingsStore.getState().zoomUIScale(-0.05),
+      },
+      {
+        id: 'ui.zoomReset',
+        label: 'Reset UI Scale',
+        category: 'View',
+        shortcut: kb['ui.zoomReset'],
+        action: () => useSettingsStore.getState().resetUIScale(),
+      },
+      {
         id: 'view.toggleSettings',
         label: 'Toggle Settings',
         category: 'Preferences',

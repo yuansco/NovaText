@@ -22,7 +22,43 @@ export const SHORTCUT_COMMANDS: ShortcutCommandMeta[] = [
   { id: 'editor.zoomIn', label: 'Zoom In Editor Font', category: 'Editor' },
   { id: 'editor.zoomOut', label: 'Zoom Out Editor Font', category: 'Editor' },
   { id: 'editor.zoomReset', label: 'Reset Editor Font Size', category: 'Editor' },
+  { id: 'ui.zoomIn', label: 'Zoom In UI Scale', category: 'View' },
+  { id: 'ui.zoomOut', label: 'Zoom Out UI Scale', category: 'View' },
+  { id: 'ui.zoomReset', label: 'Reset UI Scale', category: 'View' },
 ];
+
+const ZH_TW_COMMAND_LABELS: Record<string, { label: string; category: string }> = {
+  'file.new': { label: '新增檔案', category: '檔案' },
+  'file.open': { label: '開啟檔案', category: '檔案' },
+  'file.save': { label: '儲存檔案', category: '檔案' },
+  'file.saveAs': { label: '另存新檔', category: '檔案' },
+  'tab.close': { label: '關閉分頁', category: '分頁' },
+  'tab.next': { label: '下一個分頁', category: '分頁' },
+  'tab.prev': { label: '上一個分頁', category: '分頁' },
+  'search.find': { label: '檔案內搜尋', category: '搜尋' },
+  'search.replace': { label: '檔案內取代', category: '搜尋' },
+  'search.findInFolder': { label: '資料夾跨檔搜尋', category: '搜尋' },
+  'view.toggleSidebar': { label: '切換側邊欄', category: '檢視' },
+  'view.toggleTerminal': { label: '切換整合終端機', category: '檢視' },
+  'view.commandPalette': { label: '命令面板 (Command Palette)', category: '檢視' },
+  'view.toggleSettings': { label: '開啟/關閉設定', category: '檢視' },
+  'editor.zoomIn': { label: '放大編輯器字體', category: '編輯器' },
+  'editor.zoomOut': { label: '縮小編輯器字體', category: '編輯器' },
+  'editor.zoomReset': { label: '重設編輯器字體大小', category: '編輯器' },
+  'ui.zoomIn': { label: '放大應用程式介面比例', category: '檢視' },
+  'ui.zoomOut': { label: '縮小應用程式介面比例', category: '檢視' },
+  'ui.zoomReset': { label: '重設應用程式介面比例', category: '檢視' },
+};
+
+export function getLocalizedShortcutMeta(
+  cmd: ShortcutCommandMeta,
+  locale: string,
+): { label: string; category: string } {
+  if (locale === 'zh-TW' && ZH_TW_COMMAND_LABELS[cmd.id]) {
+    return ZH_TW_COMMAND_LABELS[cmd.id];
+  }
+  return { label: cmd.label, category: cmd.category };
+}
 
 export function normalizeShortcut(shortcut: string): string {
   const parts = shortcut

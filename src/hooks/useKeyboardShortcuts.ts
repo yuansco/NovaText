@@ -23,6 +23,11 @@ export function useKeyboardShortcuts(
         return;
       }
 
+      if (e.key === 'F3') {
+        e.preventDefault();
+        return;
+      }
+
       const kb = useSettingsStore.getState().settings.keybindings;
 
       if (matchesShortcut(e, kb['view.commandPalette'])) {
@@ -118,6 +123,24 @@ export function useKeyboardShortcuts(
       if (matchesShortcut(e, kb['editor.zoomReset'])) {
         e.preventDefault();
         useSettingsStore.getState().resetEditorFont();
+        return;
+      }
+
+      if (matchesShortcut(e, kb['ui.zoomIn'])) {
+        e.preventDefault();
+        useSettingsStore.getState().zoomUIScale(0.05);
+        return;
+      }
+
+      if (matchesShortcut(e, kb['ui.zoomOut'])) {
+        e.preventDefault();
+        useSettingsStore.getState().zoomUIScale(-0.05);
+        return;
+      }
+
+      if (matchesShortcut(e, kb['ui.zoomReset'])) {
+        e.preventDefault();
+        useSettingsStore.getState().resetUIScale();
         return;
       }
 

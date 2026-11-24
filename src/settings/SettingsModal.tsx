@@ -26,6 +26,7 @@ import {
 import {
   detectShortcutConflicts,
   eventToShortcutString,
+  getLocalizedShortcutMeta,
   SHORTCUT_COMMANDS,
 } from '@/utils/shortcuts';
 
@@ -271,9 +272,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <label className="flex flex-col gap-1">
-                    <span className="text-[var(--text-secondary)]">
-                      {t.fontSize} ({settings.editor.fontSize}px)
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[var(--text-secondary)]">
+                        {t.fontSize} ({settings.editor.fontSize}px)
+                      </span>
+                      <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                        {t.fontZoomShortcutHint}
+                      </span>
+                    </div>
                     <input
                       type="range"
                       min={10}
@@ -331,9 +337,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <label className="flex flex-col gap-1">
-                    <span className="text-[var(--text-secondary)]">
-                      {t.uiScale} ({Math.round(settings.ui.scale * 100)}%)
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[var(--text-secondary)]">
+                        {t.uiScale} ({Math.round(settings.ui.scale * 100)}%)
+                      </span>
+                      <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                        {t.uiScaleShortcutHint}
+                      </span>
+                    </div>
                     <input
                       type="range"
                       min={0.85}
@@ -665,7 +676,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[var(--text-secondary)]">
-                  Click any shortcut and press a new key combination to rebind.
+                  {t.shortcutsHint}
                 </span>
                 <button
                   type="button"
@@ -674,15 +685,26 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   style={{ borderColor: 'var(--border-color)' }}
                 >
                   <RotateCcw size={12} />
-                  Reset Defaults
+                  {t.resetDefaults}
                 </button>
+              </div>
+
+              <div
+                className="rounded border px-3 py-2 text-[11px] text-[var(--text-secondary)]"
+                style={{
+                  backgroundColor: 'var(--bg-secondary)',
+                  borderColor: 'var(--border-color)',
+                }}
+              >
+                <span className="font-medium text-[var(--accent-color)]">💡 </span>
+                {t.zoomShortcutsHint}
               </div>
 
               {Object.keys(conflicts).length > 0 && (
                 <div className="flex items-center gap-2 rounded border border-[var(--warning-color)] px-2.5 py-1.5 text-[var(--warning-color)]">
                   <AlertTriangle size={14} />
                   <span>
-                    Shortcut conflict detected:{' '}
+                    {t.shortcutConflict}{' '}
                     {Object.entries(conflicts)
                       .map(([k, cmds]) => `${k} (${cmds.join(', ')})`)
                       .join('; ')}
@@ -695,6 +717,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   const binding = settings.keybindings[cmd.id] ?? '';
                   const isRecording = recordingCmd === cmd.id;
                   const hasConflict = Object.values(conflicts).some((list) => list.includes(cmd.id));
+                  const meta = getLocalizedShortcutMeta(cmd, settings.locale);
 
                   return (
                     <div
@@ -703,8 +726,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       style={{ borderColor: 'var(--border-color)' }}
                     >
                       <div>
-                        <div className="font-medium">{cmd.label}</div>
-                        <div className="text-[10px] text-[var(--text-muted)]">{cmd.category}</div>
+                        <div className="font-medium">{meta.label}</div>
+                        <div className="text-[10px] text-[var(--text-muted)]">{meta.category}</div>
                       </div>
 
                       <button
@@ -734,7 +757,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         }`}
                         style={!isRecording && !hasConflict ? { borderColor: 'var(--border-color)' } : undefined}
                       >
-                        {isRecording ? 'Press keys...' : binding || 'Unbound'}
+                        {isRecording ? t.pressKeys : binding || t.unbound}
                       </button>
                     </div>
                   );

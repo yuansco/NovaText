@@ -33,7 +33,7 @@
   - `Ctrl + Wheel` (or `Ctrl+=` / `Ctrl+-` / `Ctrl+0`): Adjust editor font size (`8px`–`36px`).
   - `Ctrl + Alt + Wheel` (or via Settings): Adjust application UI scale (`85%`–`200%`).
 - **Multi-Language UI**: Switch seamlessly between **English** and **Traditional Chinese (繁體中文)**.
-- **Command Palette (`Ctrl+Shift+P` / `F1`) & Custom Shortcuts**: Interactive keybinding recorder with conflict detection.
+- **Command Palette (`Ctrl+P` / `F1`) & Custom Shortcuts**: Interactive keybinding recorder with conflict detection.
 
 ---
 
@@ -87,7 +87,7 @@ sudo dpkg -i release/novatext_0.1.0_amd64.deb
 | Find / Replace | `Ctrl+F` / `Ctrl+H` |
 | Find in Folder | `Ctrl+Shift+F` |
 | Toggle Sidebar | `Ctrl+B` |
-| Toggle Terminal | `Ctrl+\`` |
-| Command Palette | `Ctrl+Shift+P` or `F1` |
+| Toggle Terminal | `Ctrl+T` |
+| Command Palette | `Ctrl+P` or `F1` |
 | Zoom Editor Font In / Out / Reset | `Ctrl+=` / `Ctrl+-` / `Ctrl+0` or `Ctrl+Wheel` |
-| Scale Application UI | `Ctrl+Alt+Wheel` |
+| Scale Application UI In / Out / Reset | `Ctrl+Shift+=` / `Ctrl+Shift+-` / `Ctrl+Shift+0` or `Ctrl+Alt+Wheel` |

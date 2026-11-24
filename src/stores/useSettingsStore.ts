@@ -24,6 +24,7 @@ interface SettingsState {
   zoomEditorFont: (delta: number) => void;
   resetEditorFont: () => void;
   zoomUIScale: (delta: number) => void;
+  resetUIScale: () => void;
 }
 
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
@@ -70,6 +71,19 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   initialized: false,
 
   hydrate: (settings) => {
+    // Migrate old Command Palette shortcut to new default Ctrl+P if user hasn't explicitly customized
+    if (settings.keybindings?.['view.commandPalette'] === 'Ctrl+Shift+P') {
+      settings.keybindings['view.commandPalette'] = 'Ctrl+P';
+    }
+    // Migrate old Toggle Terminal shortcut to new default Ctrl+T if user hasn't explicitly customized
+    if (settings.keybindings?.['view.toggleTerminal'] === 'Ctrl+`') {
+      settings.keybindings['view.toggleTerminal'] = 'Ctrl+T';
+    }
+    // Ensure all default keybindings exist
+    settings.keybindings = {
+      ...DEFAULT_APP_SETTINGS.keybindings,
+      ...(settings.keybindings ?? {}),
+    };
     applyUIThemeAndScale(settings);
     set({ settings, initialized: true });
   },
@@ -229,5 +243,9 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     const raw = Math.min(2.0, Math.max(0.85, currentScale + delta));
     const nextScale = Math.round(raw * 100) / 100;
     get().updateUI({ scale: nextScale });
+  },
+
+  resetUIScale: () => {
+    get().updateUI({ scale: DEFAULT_APP_SETTINGS.ui.scale });
   },
 }));

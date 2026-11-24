@@ -75,12 +75,15 @@ export const DEFAULT_KEYBINDINGS: Record<string, string> = {
   'search.replace': 'Ctrl+H',
   'search.findInFolder': 'Ctrl+Shift+F',
   'view.toggleSidebar': 'Ctrl+B',
-  'view.toggleTerminal': 'Ctrl+`',
-  'view.commandPalette': 'Ctrl+Shift+P',
+  'view.toggleTerminal': 'Ctrl+T',
+  'view.commandPalette': 'Ctrl+P',
   'view.toggleSettings': 'Ctrl+,',
   'editor.zoomIn': 'Ctrl+=',
   'editor.zoomOut': 'Ctrl+-',
   'editor.zoomReset': 'Ctrl+0',
+  'ui.zoomIn': 'Ctrl+Shift+=',
+  'ui.zoomOut': 'Ctrl+Shift+-',
+  'ui.zoomReset': 'Ctrl+Shift+0',
 };
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
