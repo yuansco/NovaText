@@ -2,7 +2,19 @@
 
 **NovaText** is a lightweight, fast, cross-platform developer text editor built for software engineers, firmware engineers, and embedded developers. Rather than replacing a full-featured IDE, NovaText focuses on low resource usage, high information density, and a customizable environment for reading, editing, searching, and terminal workflows.
 
----
+
+## Quick Start (Installation)
+
+1. Go to the [NovaText Releases](https://github.com/yuansco/NovaText/releases) page on GitHub.
+2. Download the latest `.deb` release package (e.g., `novatext_<version>_amd64.deb`).
+3. Install the package via terminal using `dpkg`:
+
+```bash
+sudo dpkg -i novatext_*_amd64.deb
+```
+
+Once installed, you can launch **NovaText** from your desktop application launcher or run `novatext` directly in your terminal.
+
 
 ## Key Features
 
@@ -35,7 +47,6 @@
 - **Multi-Language UI**: Switch seamlessly between **English** and **Traditional Chinese (繁體中文)**.
 - **Command Palette (`Ctrl+P` / `F1`) & Custom Shortcuts**: Interactive keybinding recorder with conflict detection.
 
----
 
 ## Tech Stack
 
@@ -44,7 +55,6 @@
 - **Editor & Terminal**: CodeMirror 6, `@xterm/xterm`, `iconv-lite`
 - **Testing & Quality**: Vitest, ESLint, TypeScript (`tsc --noEmit`)
 
----
 
 ## Development & Packaging
 
@@ -66,14 +76,6 @@ npm run build
 # Package Linux .deb installer (output in release/)
 npm run pack:deb
 ```
-
-### Installing the `.deb` Package (Ubuntu / Debian)
-
-```bash
-sudo dpkg -i release/novatext_0.1.0_amd64.deb
-```
-
----
 
 ## Default Keyboard Shortcuts
 
