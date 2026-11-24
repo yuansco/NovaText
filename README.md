@@ -5,12 +5,10 @@
 
 ## Quick Start (Installation)
 
-1. Go to the [NovaText Releases](https://github.com/yuansco/NovaText/releases) page on GitHub.
-2. Download the latest `.deb` release package (e.g., `novatext_<version>_amd64.deb`).
-3. Install the package via terminal using `dpkg`:
-
+Install the latest release package:
 ```bash
-sudo dpkg -i novatext_*_amd64.deb
+wget $(wget -qO- https://api.github.com/repos/yuansco/NovaText/releases/latest | grep -o 'https://[^"]*\.deb' | head -n 1)
+sudo apt install -y ./novatext_*_amd64.deb
 ```
 
 Once installed, you can launch **NovaText** from your desktop application launcher or run `novatext` directly in your terminal.
