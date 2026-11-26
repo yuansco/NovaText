@@ -6,12 +6,21 @@ import { useBottomPanelStore } from '@/stores/useBottomPanelStore';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { XTermView } from './XTermView';
 
-const SHELL_PROFILES = [
-  { label: 'Default Shell', value: '' },
-  { label: 'Bash (/bin/bash)', value: '/bin/bash' },
-  { label: 'Zsh (/bin/zsh)', value: '/bin/zsh' },
-  { label: 'Sh (/bin/sh)', value: '/bin/sh' },
-];
+const isWindows = typeof window !== 'undefined' && hasNovaAPI() && getNovaAPI().app.getPlatform() === 'win32';
+
+const SHELL_PROFILES = isWindows
+  ? [
+      { label: 'Default Shell', value: '' },
+      { label: 'PowerShell (powershell.exe)', value: 'powershell.exe' },
+      { label: 'Command Prompt (cmd.exe)', value: 'cmd.exe' },
+      { label: 'Git Bash (bash.exe)', value: 'bash.exe' },
+    ]
+  : [
+      { label: 'Default Shell', value: '' },
+      { label: 'Bash (/bin/bash)', value: '/bin/bash' },
+      { label: 'Zsh (/bin/zsh)', value: '/bin/zsh' },
+      { label: 'Sh (/bin/sh)', value: '/bin/sh' },
+    ];
 
 export function TerminalPanel() {
   const {

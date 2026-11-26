@@ -68,6 +68,10 @@ if (!gotTheLock) {
     const persisted = await loadPersistedState();
     const bounds = persisted.windowBounds ?? { width: 1280, height: 820 };
 
+    const appIconPath = process.platform === 'win32'
+      ? path.join(__dirname, '../../assets/icon.ico')
+      : path.join(__dirname, '../../assets/icon.png');
+
     mainWindow = new BrowserWindow({
       width: bounds.width,
       height: bounds.height,
@@ -77,7 +81,7 @@ if (!gotTheLock) {
       minHeight: 520,
       show: false,
       title: 'NovaText',
-      icon: path.join(__dirname, '../../assets/icon.png'),
+      icon: appIconPath,
       backgroundColor: '#13151a',
       autoHideMenuBar: true,
       webPreferences: {

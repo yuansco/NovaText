@@ -5,7 +5,15 @@
 
 ## Quick Start (Installation)
 
-Install the latest release package:
+Download the latest installer from the [GitHub Releases](https://github.com/yuansco/NovaText/releases) page.
+
+### Windows
+1. Download `NovaText Setup 1.0.0.exe` (or latest version).
+2. Run the setup installer to install NovaText to your preferred directory.
+3. Launch NovaText from the Start Menu or Desktop shortcut.
+
+### Ubuntu / Debian (Linux)
+Install the latest release package via terminal:
 ```bash
 wget $(wget -qO- https://api.github.com/repos/yuansco/NovaText/releases/latest | grep -o 'https://[^"]*\.deb' | head -n 1)
 sudo apt install -y ./novatext_*_amd64.deb
@@ -73,6 +81,12 @@ npm run build
 
 # Package Linux .deb installer (output in release/)
 npm run pack:deb
+
+# Package Windows NSIS installer (.exe output in release/)
+npm run pack:win
+
+# Package both Linux and Windows installers
+npm run pack:all
 ```
 
 ## Default Keyboard Shortcuts

@@ -11,6 +11,8 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "pack:deb": "npm run build && electron-builder --linux deb",
+    "pack:win": "npm run build && electron-builder --win nsis",
+    "pack:all": "npm run build && electron-builder --linux deb --win nsis",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.test.json",
     "lint": "eslint .",
     "test": "vitest run",
@@ -80,6 +82,25 @@
         "text/x-c",
         "text/x-c++"
       ]
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "NovaText",
+      "uninstallDisplayName": "NovaText"
     }
   },
   "dependencies": {

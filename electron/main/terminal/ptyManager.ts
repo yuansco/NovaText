@@ -95,6 +95,7 @@ export function createTerminalSession(
       cwd: workingDir,
       env,
       stdio: 'pipe',
+      windowsHide: true,
     });
   }
 
